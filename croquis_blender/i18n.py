@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""The panel in Spanish and Portuguese: IngeTrazo Croquis's own words
+"""The panel in Spanish and Portuguese: Croquis for IngeTrazo's own words
 (core/texts.py), and the few that only Blender's panel says. Blender shows
 them when its interface is in one of those languages."""
 import bpy

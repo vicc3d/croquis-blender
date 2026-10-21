@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Copy the drawing core in from IngeTrazo Croquis, where it lives.
+"""Copy the drawing core in from Croquis for IngeTrazo, where it lives.
 
-    python3 tools/sync_core.py [path/to/ingetrazo-croquis]
+    python3 tools/sync_core.py [path/to/croquis-ingetrazo]
 
 One drawing core serves IngeTrazo and Blender: it is written and tested in
-github.com/vicc3d/ingetrazo-croquis (``croquis/``), and copied here, into
+github.com/vicc3d/croquis-ingetrazo (``croquis/``), and copied here, into
 ``croquis_blender/core/``, when it improves. The copy says which commit it
 came from.
 """
@@ -25,10 +25,10 @@ MODULES = ("compose", "drawing", "hatch", "ink", "marker", "palette", "paper",
 
 
 def main() -> int:
-    src_repo = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / "ingetrazo-croquis"
+    src_repo = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent / "croquis-ingetrazo"
     src = src_repo / "croquis"
     if not (src / "drawing.py").is_file():
-        print(f"no IngeTrazo Croquis checkout at {src_repo}")
+        print(f"no Croquis for IngeTrazo checkout at {src_repo}")
         return 2
     try:
         commit = subprocess.check_output(["git", "-C", str(src_repo), "rev-parse", "--short",
@@ -39,7 +39,7 @@ def main() -> int:
     for name in MODULES:
         shutil.copy2(src / f"{name}.py", CORE / f"{name}.py")
     (CORE / "__init__.py").write_text(
-        '"""IngeTrazo Croquis\'s drawing core (github.com/vicc3d/ingetrazo-croquis,\n'
+        '"""Croquis\'s drawing core (github.com/vicc3d/croquis-ingetrazo,\n'
         f'commit {commit}), copied in by tools/sync_core.py: change it there."""\n',
         encoding="utf-8")
     print(f"core synced from {src_repo} @ {commit}")

@@ -58,13 +58,13 @@ interface language.
 ### Development
 
 The drawing core is shared with
-[IngeTrazo Croquis](https://github.com/vicc3d/ingetrazo-croquis), the same
+[Croquis for IngeTrazo](https://github.com/vicc3d/croquis-ingetrazo), the same
 extension for the IngeTrazo modeler, where it is written and tested. It is
 copied into `croquis_blender/core/` by `tools/sync_core.py`; change it
 there.
 
 ```bash
-python3 tools/sync_core.py ../ingetrazo-croquis     # the core, when it improves
+python3 tools/sync_core.py ../croquis-ingetrazo     # the core, when it improves
 python3 tools/build.py --blender /path/to/blender   # build/croquis-blender-<version>.zip
 blender -b --factory-startup --python tests/check_draw.py -- /tmp/croquis
 blender -b --factory-startup --python tests/check_i18n.py
