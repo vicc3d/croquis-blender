@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "croquis"
-version = "0.4.0"
+version = "0.4.1"
 name = "Croquis"
 tagline = "The camera's view as an architect's freehand sketch"
 maintainer = "Victor Crespo (3dvic.com · github.com/vicc3d)"
@@ -11,7 +11,7 @@ website = "https://github.com/vicc3d/croquis-blender"
 blender_version_min = "5.0.0"
 
 license = ["SPDX:GPL-3.0-or-later"]
-tags = ["Render", "Camera"]
+tags = ["Render"]
 
 [permissions]
 files = "Save the drawing, read an image of your own as the paper"
