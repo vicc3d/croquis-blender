@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""A Blender scene seen as Croquis sees IngeTrazo's viewport.
+"""A Blender scene, read the way Croquis draws.
 
 Croquis draws from a few things only: the camera (its two matrices, where
 it stands and looks), the model's triangles with each one's colour, the
 edges to draw (hard ones always, soft ones where the surface turns away),
 and the sun. :class:`BlenderView` gathers them from the scene once, on the
-main thread, with NumPy over each mesh's arrays; the drawing then runs on
-it exactly as in IngeTrazo.
+main thread, with NumPy over each mesh's arrays, and the drawing runs on
+what it gathered.
 
 Which edges: an edge between two faces is drawn when they meet at a real
 angle (more than :data:`HARD_ANGLE`), when it is marked sharp, at the
@@ -261,11 +261,21 @@ def _alpha_from_image(mat) -> bool:
     return False
 
 
+#: Constraints that keep an object turned toward its target.
+_FACING = {"TRACK_TO", "LOCKED_TRACK", "DAMPED_TRACK"}
+
+
 def see_through(obj) -> bool:
-    """A face-me figure IngeTrazo Sync marked as such: left out whole, as
-    IngeTrazo's Croquis does."""
+    """A figure that keeps facing the camera, such as a person or a tree on
+    a card turned to the view by a tracking constraint. A sketcher leaves
+    those out, so the drawing leaves the whole object out."""
     own = getattr(obj, "original", obj)
-    return bool(own.get("ingetrazo_billboard"))
+    for con in getattr(own, "constraints", ()):
+        target = getattr(con, "target", None)
+        if (con.type in _FACING and not con.mute and target is not None
+                and target.type == "CAMERA"):
+            return True
+    return False
 
 
 #: A material on more faces than this is not a picture on a sheet.
@@ -275,8 +285,8 @@ CUTOUT_FACES = 16
 def cutout_slots(obj, mesh) -> set:
     """The material slots that are pictures on a sheet (a figure, a tree
     on a plane): their transparency from an image, on a few faces in one
-    plane. Drawn, such a sheet was a solid black rectangle; IngeTrazo's
-    Croquis leaves its figures out, and so does this."""
+    plane. Drawn, such a sheet would be a solid black rectangle, so its
+    figure is left out, as a sketcher leaves it out."""
     mats = [ms.material for ms in obj.material_slots] or list(mesh.materials)
     out = set()
     np_ = len(mesh.polygons)

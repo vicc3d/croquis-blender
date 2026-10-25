@@ -123,6 +123,23 @@ t, _m, h, _s, _n = sv.mesh_parts(joined.data, joined.matrix_world,
                                  sv.cutout_slots(joined, joined.data))
 check(len(t) == 12 and len(h) == 12, f"only the cube is drawn ({len(t)} triangles, {len(h)} edges)")
 
+# A figure kept facing the camera by a tracking constraint is left out
+# whole; the same card without the constraint, or turned toward something
+# else, is drawn.
+bpy.ops.mesh.primitive_plane_add(size=1.5, location=(-6, 0, 1), rotation=(math.radians(90), 0, 0))
+card = bpy.context.object
+check(not sv.see_through(card), "a plain card is drawn")
+con = card.constraints.new("LOCKED_TRACK")
+con.target = cam
+con.track_axis = "TRACK_NEGATIVE_Y"
+con.lock_axis = "LOCK_Z"
+check(sv.see_through(card), "a card turned to the camera is left out")
+con.mute = True
+check(not sv.see_through(card), "a muted constraint does not count")
+con.mute = False
+con.target = joined
+check(not sv.see_through(card), "a card turned to an object, not a camera, is drawn")
+
 croquis.unregister()
 print("FAILURES:", len(failures))
 sys.exit(1 if failures else 0)

@@ -17,7 +17,6 @@ from . import hatch
 from . import ink
 from . import marker as mk
 from . import paper as pp
-from . import palette as pal
 from . import shadow as sh
 from . import strokes as st
 from . import visibility as vis
@@ -28,11 +27,6 @@ INK = (29, 26, 23)               # not black: a warm dark ink
 #: The depth buffer is never wider than this (lines and fills are scaled up
 #: from it): enough for a sketch, and quick.
 MAX_BUFFER_WIDTH = 2000
-#: What a host may lend the drawing (with none, NumPy does it all):
-#: ``RESIZE(rgb, width, height)``, a smoother scaling than
-#: :func:`resize_array`; ``PAINT(layers)``, the drawing as the host's image.
-RESIZE = None
-PAINT = None
 
 
 class View:
@@ -48,10 +42,8 @@ class View:
         self.camera = cam
         self.scene = viewport.scene
         self.geom = viewport.hlr_geometry()
-        # A frozen copy of the viewport (the live preview's) brings them.
+        # The scene hands the faces with their colours (scene_view.py).
         coloured = getattr(viewport, "croquis_colours", None)
-        if coloured is None:
-            coloured = pal.triangle_colours(viewport)
         if coloured is not None:
             self.tris, self.colour, self.tone = coloured
         else:
@@ -86,8 +78,6 @@ def _resize(rgb: np.ndarray, width: int, height: int) -> np.ndarray:
     """Smoothly scale an (h, w, 3) float image."""
     if rgb.shape[1] == width and rgb.shape[0] == height:
         return rgb
-    if RESIZE is not None:
-        return RESIZE(rgb, width, height)
     return resize_array(rgb, width, height)
 
 
@@ -162,8 +152,7 @@ def fill_layer(view: View, style: mk.MarkerStyle, maps: dict | None = None,
 
 
 def resize_array(rgb: np.ndarray, width: int, height: int) -> np.ndarray:
-    """:func:`_resize` in NumPy (bilinear, pixel centres aligned), when the
-    host lends no :data:`RESIZE`."""
+    """:func:`_resize`: bilinear, with the pixel centres aligned."""
     h, w = rgb.shape[:2]
     ys = np.clip((np.arange(height) + 0.5) * h / height - 0.5, 0, h - 1)
     xs = np.clip((np.arange(width) + 0.5) * w / width - 0.5, 0, w - 1)
@@ -216,15 +205,9 @@ class Layers:
         out[oy:oy + h, ox:ox + w] *= self.fill
         return out
 
-    def image(self):
-        """The drawing as the host's own image (:data:`PAINT`)."""
-        if PAINT is None:
-            raise RuntimeError("no painter: use pixels()")
-        return PAINT(self)
-
     def pixels(self) -> np.ndarray:
-        """The drawing as (H, W, 3) bytes, with no toolkit: the strokes laid by
-        :mod:`.raster` (as a painter would, to a hair)."""
+        """The drawing as (H, W, 3) bytes: the paper with its colour, and the
+        strokes laid on it by :mod:`.raster`."""
         from . import raster
         rgb = np.array(self.coloured_sheet(), dtype=np.float64)
         raster.lay_strokes(rgb, self.strokes, INK)
@@ -284,13 +267,3 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
         shift = np.array([ox, oy], dtype=np.float64)
         strokes = [st.Stroke(s.outline + shift, s.opacity) for s in strokes]
     return Layers(sheet, fill, strokes, (ox, oy), (width, height))
-
-
-def sketch(viewport, style: st.LineStyle, width: int, view: View | None = None,
-           marker: mk.MarkerStyle | None = None,
-           composition: cp.Composition | None = None,
-           paper_kind: str = "cream", paper_image: str = "",
-           page: tuple | None = None):
-    """:func:`render`, as the host's image (:meth:`Layers.image`)."""
-    return render(viewport, style, width, view, marker, composition,
-                  paper_kind, paper_image, page).image()

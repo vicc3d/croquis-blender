@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""The panel's settings, kept with the scene (saved in the .blend): the
-same choices as in IngeTrazo, with the same ranges and ready-made styles."""
+"""The panel's settings, kept with the scene (saved in the .blend), with
+their ranges and the ready-made styles."""
 
 import bpy
 from bpy.props import (BoolProperty, EnumProperty, IntProperty,

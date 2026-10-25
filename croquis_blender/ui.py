@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""The Croquis tab in the 3D viewport's sidebar: the same boxes as in
-IngeTrazo, one decision each, and the button that draws."""
+"""The Croquis tab in the 3D viewport's sidebar: a few boxes, one decision
+each, and the button that draws."""
 from __future__ import annotations
 
 import bpy

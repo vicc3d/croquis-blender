@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
 """Croquis for Blender: the camera's view as an architect's freehand
-sketch. The drawing itself is Croquis for IngeTrazo's (``core``, copied in
-when the extension is built); this package reads the scene for it."""
+sketch. The drawing lives in ``core``; the rest of this package reads the
+scene for it, shows the panel and saves the result."""
 from . import i18n, ops, props, ui
 
 _modules = (i18n, props, ops, ui)

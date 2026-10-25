@@ -91,14 +91,9 @@ def make(kind: str, width: int, height: int, seed: int = 7,
     return np.clip(sheet, 0, 255).astype(np.float32)
 
 
-#: How the host reads an image of your own, for the NumPy cover:
-#: ``path -> (H, W, 3) floats 0..255`` or None. The host sets it.
+#: How an image of your own is read: ``path -> (H, W, 3) floats 0..255``
+#: or None. Blender's reader is set in ops.py.
 IMAGE_READER = None
-
-
-#: ``(path, width, height) -> (H, W, 3) floats`` or None: a host's own way
-#: to lay an image over the sheet, when it lends one.
-IMAGE_COVER = None
 
 
 def _from_image(path: str, width: int, height: int):
@@ -106,13 +101,11 @@ def _from_image(path: str, width: int, height: int):
     stretched to cover it (cropped to keep its proportions)."""
     if not Path(path).is_file():
         return None
-    if IMAGE_COVER is not None:
-        return IMAGE_COVER(path, width, height)
     return _from_array(path, width, height)
 
 
 def _from_array(path: str, width: int, height: int):
-    """:func:`_from_image` with :data:`IMAGE_READER` and NumPy."""
+    """The image read by :data:`IMAGE_READER`, laid with NumPy."""
     src = IMAGE_READER(path) if IMAGE_READER is not None else None
     if src is None or not src.size:
         return None

@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""A drawing as SVG in layers and as PDF, with no toolkit, whatever the
-host.
+"""A drawing as SVG in layers and as PDF.
 
 The ink is vector in both: every stroke is already a polygon (the outline
 of a stroke with its changing width), so it goes out as a path, editable
@@ -10,8 +9,8 @@ textures: in SVG each its own layer under the ink, the fill multiplied
 onto the paper as a marker's ink is; in PDF one picture, the paper with
 the fill laid on it.
 
-Pictures are encoded by the host (``encode(rgb, fmt, quality) -> bytes``,
-``fmt`` "PNG" or "JPG": the host's own image writer); without
+Pictures are encoded by Blender (``encode(rgb, fmt, quality) -> bytes``,
+``fmt`` "PNG" or "JPG", see ops.py); without
 one, or when it cannot, PNG is written here with zlib.
 """
 from __future__ import annotations
@@ -51,13 +50,13 @@ def _bytes(rgb: np.ndarray):
 
 
 def _encoded(rgb: np.ndarray, fmt: str, quality: int, encode):
-    """``(bytes, fmt)`` of a picture: the host's, or PNG from here."""
+    """``(bytes, fmt)`` of a picture: Blender's, or PNG from here."""
     if encode is not None:
         try:
             data = encode(rgb, fmt, quality)
             if data:
                 return data, fmt
-        except Exception:                # noqa: BLE001 (the host could not)
+        except Exception:                # noqa: BLE001 (Blender could not)
             pass
     return png_bytes(rgb), "PNG"
 
@@ -190,7 +189,7 @@ def _pdf_text(s: str) -> str:
 def save(layers, path: str, encode=None, dpi: int = 300,
          labels=("Paper", "Colour and shade", "Ink"), png=None) -> bool:
     """By the file's extension: .svg, .pdf, else PNG (``png(layers, path)``
-    from the host, or written here)."""
+    from Blender, or written here)."""
     low = path.lower()
     try:
         if low.endswith(".svg"):

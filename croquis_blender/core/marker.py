@@ -66,26 +66,15 @@ def triangle_normals(tris: np.ndarray) -> np.ndarray:
     return n / ln[:, None]
 
 
-#: ``(scene) -> (x, y, z)`` toward the host's sun, or None (night), when it
-#: lends one. A scene's own ``croquis_sun()`` wins.
-SUN = None
-
 
 def light_direction(camera, scene, kind: str):
     """Unit vector toward the light, in world axes. ``classic``: from the
     upper left and a little behind the viewer, the sketcher's habit, so the
-    drawing always reads; ``sun``: the host's sun, from the scene's own
-    ``croquis_sun()`` or :data:`SUN` (the classic light when it is night
-    there)."""
+    drawing always reads; ``sun``: the scene's Sun lamp, from its
+    ``croquis_sun()`` (the classic light when there is none)."""
     if kind == "sun":
         own = getattr(scene, "croquis_sun", None)
-        if callable(own):
-            d = own()
-        else:
-            try:
-                d = SUN(scene) if SUN is not None else None
-            except Exception:            # noqa: BLE001 (an older host)
-                d = None
+        d = own() if callable(own) else None
         if d is not None:
             v = np.array(d, dtype=np.float64)
             return v / max(np.linalg.norm(v), 1e-12)
