@@ -3,8 +3,8 @@
 """Cast shadows: which of the pixels the view shows the light cannot reach.
 
 The ground: as a modeller's own view does, the shadows also fall on a
-level ground under the model (at its foot, or at zero) even when the model has
-no floor of its own.
+level ground under the model (where it stands, or at zero) even when the model
+has no floor of its own.
 
 A shadow map: the model's triangles drawn into a depth buffer seen from the
 light (a parallel view along it, as the sun's rays are), with the same
@@ -88,10 +88,32 @@ def _blocked(P: np.ndarray, M: np.ndarray, smap: np.ndarray) -> np.ndarray:
     return out
 
 
+#: The share of the model's height, from its foot, where it can stand.
+STAND_SHARE = 0.25
+
+
 def ground_level(tris: np.ndarray) -> float:
-    """The ground's height: the model's foot, or zero if that is higher
-    (where a render usually puts its ground)."""
-    return min(float(tris[:, :, 2].min()), 0.0) if len(tris) else 0.0
+    """The ground's height: where the model stands, or zero if that is
+    higher (where a render usually puts its ground).
+
+    The model stands on the level that holds most of its undersides near its
+    foot: the slabs of a house, not the bottom of a sunken patio or a pool,
+    which would leave the house floating over a ground below it. A model
+    with no undersides there (a terrain, a single plane) stands on its foot.
+    """
+    if not len(tris):
+        return 0.0
+    z = tris[:, :, 2]
+    foot, top = float(z.min()), float(z.max())
+    cross = np.cross(tris[:, 1] - tris[:, 0], tris[:, 2] - tris[:, 0])
+    area = np.linalg.norm(cross, axis=1)
+    under = (cross[:, 2] < -0.97 * area) & (z.max(axis=1) <= foot + STAND_SHARE * (top - foot))
+    if not under.any():
+        return min(foot, 0.0)
+    keys = np.round(z[under].mean(axis=1) * 50.0).astype(np.int64)
+    levels, inv = np.unique(keys, return_inverse=True)
+    sums = np.bincount(inv, weights=area[under])
+    return min(float(levels[int(np.argmax(sums))]) / 50.0, 0.0)
 
 
 def shadow_map(tris: np.ndarray, light: np.ndarray):
