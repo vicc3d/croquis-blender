@@ -8,6 +8,8 @@ with the hand, grey or colour marker, watercolour, hatching or
 high-contrast ink, on the paper you choose. No nodes, no setup: pick a
 style and press a button.
 
+**[Get it on extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)**
+
 ![The six ready-made styles, drawn in Blender](docs/img/blender-estilos.jpg)
 
 ---
@@ -40,7 +42,8 @@ style and press a button.
 
 ### Install
 
-In Blender, **Edit ▸ Preferences ▸ Get Extensions**, look for *Croquis*.
+In Blender, **Edit ▸ Preferences ▸ Get Extensions**, look for *Croquis*
+(its page: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)).
 Or download `croquis-blender-<version>.zip` from
 [Releases](https://github.com/vicc3d/croquis-blender/releases) and use
 **Install from Disk…** in the same place. Needs Blender 5.0 or later.
@@ -103,7 +106,8 @@ configuración: eliges un estilo y pulsas un botón.
 
 ### Instalar
 
-En Blender, **Edit ▸ Preferences ▸ Get Extensions**, busca *Croquis*. O
+En Blender, **Edit ▸ Preferences ▸ Get Extensions**, busca *Croquis*
+(su página: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)). O
 descarga `croquis-blender-<versión>.zip` desde
 [Releases](https://github.com/vicc3d/croquis-blender/releases) y usa
 **Install from Disk…** en el mismo lugar. Necesita Blender 5.0 o
@@ -155,7 +159,8 @@ configuração: escolha um estilo e clique num botão.
 
 ### Instalar
 
-No Blender, **Edit ▸ Preferences ▸ Get Extensions**, procure *Croquis*. Ou
+No Blender, **Edit ▸ Preferences ▸ Get Extensions**, procure *Croquis*
+(sua página: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)). Ou
 baixe `croquis-blender-<versão>.zip` em
 [Releases](https://github.com/vicc3d/croquis-blender/releases) e use
 **Install from Disk…** no mesmo lugar. Precisa do Blender 5.0 ou
