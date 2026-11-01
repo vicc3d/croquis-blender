@@ -19,7 +19,9 @@ style and press a button.
 ### What it does
 
 - **Six ready-made styles:** Ink, Grey marker, Colour marker, Watercolour,
-  Hatched and High contrast. Change anything and it becomes *Custom*.
+  Hatched and High contrast, each with a thumbnail in the panel. Change
+  anything and it becomes *Custom*; save it with **+** as a style of your
+  own, to use again in any file.
 - **The line of a hand:** strokes that overshoot at real corners, bow and
   waver, sometimes drawn twice, with the outlines heavier. From *Ruler* to
   *Loose*.
@@ -67,6 +69,7 @@ reads the scene, shows the panel and saves the result.
 python3 tools/build.py --blender /path/to/blender   # build/croquis-blender-<version>.zip
 blender -b --factory-startup --python tests/check_draw.py -- /tmp/croquis
 blender -b --factory-startup --python tests/check_i18n.py
+blender -b --factory-startup --python tools/thumbnails.py   # the styles' thumbnails
 ```
 
 ---
@@ -82,8 +85,9 @@ configuración: eliges un estilo y pulsas un botón.
 ### Qué hace
 
 - **Seis estilos listos:** Tinta, Rotulador gris, Rotulador color,
-  Acuarela, Rayado y Alto contraste. Si cambias algo, pasa a
-  *Personalizado*.
+  Acuarela, Rayado y Alto contraste, cada uno con su miniatura en el panel.
+  Si cambias algo, pasa a *Personalizado*; guárdalo con **+** como un
+  estilo tuyo, para usarlo de nuevo en cualquier archivo.
 - **La línea de una mano:** trazos que sobresalen en las esquinas de
   verdad, se curvan y tiemblan, a veces repasados, con las siluetas más
   marcadas. Desde *Regla* hasta *Suelta*.
@@ -136,8 +140,9 @@ configuração: escolha um estilo e clique num botão.
 ### O que faz
 
 - **Seis estilos prontos:** Tinta, Marcador cinza, Marcador colorido,
-  Aquarela, Hachurado e Alto contraste. Se você mudar algo, passa a
-  *Personalizado*.
+  Aquarela, Hachurado e Alto contraste, cada um com sua miniatura no
+  painel. Se você mudar algo, passa a *Personalizado*; salve com **+** como
+  um estilo seu, para usar de novo em qualquer arquivo.
 - **A linha de uma mão:** traços que passam dos cantos de verdade, se
   curvam e tremem, às vezes repassados, com as silhuetas mais marcadas. De
   *Régua* a *Solta*.

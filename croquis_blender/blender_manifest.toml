@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "croquis"
-version = "0.4.2"
+version = "0.5.0"
 name = "Croquis"
 tagline = "The camera's view as an architect's freehand sketch"
 maintainer = "Victor Crespo (3dvic.com · github.com/vicc3d)"
@@ -14,7 +14,7 @@ license = ["SPDX:GPL-3.0-or-later"]
 tags = ["Render"]
 
 [permissions]
-files = "Save the drawing, read an image of your own as the paper"
+files = "Save drawings and your own styles, read your own paper image"
 
 [build]
 paths_exclude_pattern = ["__pycache__/", "*.pyc"]

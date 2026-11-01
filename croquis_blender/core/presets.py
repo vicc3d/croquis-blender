@@ -83,6 +83,19 @@ PRESETS = {
 }
 
 
+#: What a style of your own keeps: every choice of the look, the hand and
+#: the paper too, but not the drawing's size.
+OWN_STYLE_KEYS = tuple(k for k in DEFAULTS if k not in (
+    "preset", "size", "custom_format", "custom_width", "dpi"))
+
+
+def own_style(state) -> dict:
+    """The part of the settings a style of your own keeps, read back as
+    :func:`clean` reads any settings."""
+    s = clean(state)
+    return {k: s[k] for k in OWN_STYLE_KEYS}
+
+
 def apply_preset(state: dict, key: str) -> dict:
     out = dict(state)
     out.update(PRESETS[key][1])

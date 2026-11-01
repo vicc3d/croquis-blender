@@ -15,11 +15,14 @@ for p in rna.properties:
     found |= {p.name, p.description}
     if p.type == "ENUM":
         for it in p.enum_items: found |= {it.name, it.description}
+for it in croquis.styles.enum_items(None, None):
+    if not it[0].startswith("own_"): found |= {it[1], it[2]}
+found |= {"A style of your own", "My style", "Give the style a name", "Saved the style {name}", "Deleted the style {name}"}
 for it in __import__("croquis_blender.props", fromlist=["x"])._papers_cached():
     found |= {it[1], it[2]}
 for cls in bpy.types.Panel.__subclasses__():
     if cls.__name__.startswith("CROQUIS"): found.add(cls.bl_label)
-for op in ("draw", "save"):
+for op in ("draw", "save", "style_save", "style_delete"):
     o = getattr(bpy.ops.croquis, op).get_rna_type()
     found |= {o.name, o.description}
     for p in o.properties:

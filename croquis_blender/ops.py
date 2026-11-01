@@ -34,6 +34,11 @@ def _read_image(path: str):
     return rgb * 255.0
 
 
+def last_layers():
+    """The last drawing's layers, or None before the first drawing."""
+    return _last["layers"]
+
+
 def camera_for(context, source: str):
     """``(camera, None)`` or ``(None, why)``."""
     depsgraph = context.evaluated_depsgraph_get()

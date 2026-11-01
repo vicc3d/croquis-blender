@@ -3,9 +3,9 @@
 """Croquis for Blender: the camera's view as an architect's freehand
 sketch. The drawing lives in ``core``; the rest of this package reads the
 scene for it, shows the panel and saves the result."""
-from . import i18n, ops, props, ui
+from . import i18n, ops, props, styles, ui
 
-_modules = (i18n, props, ops, ui)
+_modules = (i18n, styles, props, ops, ui)
 
 
 def register() -> None:

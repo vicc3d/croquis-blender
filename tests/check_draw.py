@@ -19,6 +19,8 @@ from croquis_blender import ops  # noqa: E402
 
 out = Path(sys.argv[sys.argv.index("--") + 1]) if "--" in sys.argv else Path(".")
 out.mkdir(parents=True, exist_ok=True)
+(out / "styles" / "styles.json").unlink(missing_ok=True)
+croquis.styles.folder_override = str(out / "styles")
 croquis.register()
 failures = []
 
@@ -87,6 +89,44 @@ s.hand = 10
 check(s.preset == "hatched", "the hand is not a style's choice")
 s.technique = "marker"
 check(s.preset == "custom", "changing a style's choice makes it Custom")
+
+# The styles in the panel: each ready-made one with its thumbnail, at the
+# number a saved .blend knows it by.
+from croquis_blender import props, styles  # noqa: E402
+from croquis_blender.core import presets as ps  # noqa: E402
+items = styles.enum_items(None, None)
+check([it[4] for it in items[:len(styles.BUILT_IN)]] == list(range(len(styles.BUILT_IN))),
+      "the ready-made styles keep their numbers")
+check(all(isinstance(it[3], int) for it in items[:len(ps.PRESETS)]),
+      "every ready-made style has its thumbnail")
+
+# A style of your own: saved with a thumbnail, chosen again, deleted.
+s.hand = 33
+s.paper = "kraft"
+key = styles.save_style("Mine", props.settings_dict(s), layers)
+props.choose(s, key)
+own = out / "styles"
+check(s.preset == key and styles.own_name(key) == "Mine", "a style of your own is saved")
+check(styles.enum_items(None, None)[-1][4] >= styles.OWN_FIRST, "numbered clear of the ready-made ones")
+check((own / "styles.json").is_file() and any(own.glob("style-*.png")),
+      "kept in its file, with its thumbnail")
+s.preset = "ink"
+check(s.hand == 33 and s.technique == "ink", "a ready-made style keeps the hand")
+s.hand = 70
+s.paper = "white"
+s.preset = key
+check(s.hand == 33 and s.technique == "marker" and s.paper == "kraft",
+      "a style of your own brings back all its choices")
+nib = s.nib
+s.nib = nib + 10
+check(s.preset == "custom", "touching a style of your own makes it Custom")
+s.nib = nib
+check(s.preset == key, "and it is that style again when its choices come back")
+check(styles.save_style("mine", props.settings_dict(s)) == key, "a name saved again replaces the style")
+styles.load()
+check(styles.is_own(key), "read back from its file")
+styles.delete_style(key)
+check(not styles.is_own(key) and not any(own.glob("style-*.png")), "a style of your own deleted")
 
 # The sun: the drawing reads the Sun lamp's direction.
 from croquis_blender import scene_view as sv  # noqa: E402

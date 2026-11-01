@@ -19,7 +19,11 @@ class CROQUIS_PT_main(_Base, bpy.types.Panel):
     def draw(self, context):
         s = context.scene.croquis
         col = self.layout.column()
-        col.prop(s, "preset")
+        col.template_icon_view(s, "preset", show_labels=True, scale=6.0, scale_popup=5.0)
+        row = col.row(align=True)
+        row.prop(s, "preset", text="")
+        row.operator("croquis.style_save", text="", icon="ADD")
+        row.operator("croquis.style_delete", text="", icon="REMOVE")
         row = col.row(align=True)
         row.prop(s, "source", expand=True)
         row = col.row(align=True)

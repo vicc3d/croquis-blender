@@ -7,10 +7,9 @@ import bpy
 from bpy.props import (BoolProperty, EnumProperty, IntProperty,
                        PointerProperty, StringProperty)
 
+from . import styles
 from .core import presets as ps
 
-STYLES = [(k, label, "") for k, (label, _c) in ps.PRESETS.items()] + [
-    ("custom", "Custom", "Your own choices")]
 TECHNIQUES = [("marker", "Marker", "Strokes of alcohol marker"),
               ("watercolour", "Watercolour", "Washes of watercolour"),
               ("ink", "Ink only", "Lines only, no colour")]
@@ -39,27 +38,45 @@ def _as_dict(s) -> dict:
     return ps.clean(out)
 
 
+def _set(s, values: dict) -> None:
+    for k, v in values.items():
+        if hasattr(s, k):
+            setattr(s, k, v)
+
+
 def _on_style(self, _context) -> None:
     global _applying
     if _applying or self.preset == "custom":
         return
     _applying = True
     try:
-        for k, v in ps.PRESETS[self.preset][1].items():
-            if hasattr(self, k):
-                setattr(self, k, v)
+        if styles.is_own(self.preset):
+            _set(self, styles.own_settings(self.preset))
+        else:
+            _set(self, ps.PRESETS[self.preset][1])
     finally:
         _applying = False
 
 
 def _on_choice(self, _context) -> None:
-    """Touching a style's choice makes the drawing «Custom»."""
+    """Touching a style's choice makes the drawing «Custom», or the style
+    it now matches."""
     global _applying
     if _applying:
         return
     _applying = True
     try:
-        self.preset = ps.matching_preset(_as_dict(self))
+        self.preset = styles.matching(_as_dict(self), self.preset)
+    finally:
+        _applying = False
+
+
+def choose(s, key: str) -> None:
+    """Show ``key`` as the style without applying it again."""
+    global _applying
+    _applying = True
+    try:
+        s.preset = key
     finally:
         _applying = False
 
@@ -72,11 +89,12 @@ def _b(name, default, desc=""):
 def _i(name, key, desc="", subtype="NONE"):
     lo, hi = ps.RANGES[key]
     return IntProperty(name=name, default=ps.DEFAULTS[key], min=lo, max=hi,
-                       description=desc, subtype=subtype)
+                       description=desc, subtype=subtype, update=_on_choice)
 
 
 class CroquisSettings(bpy.types.PropertyGroup):
-    preset: EnumProperty(name="Style", items=STYLES, default=ps.DEFAULTS["preset"],
+    preset: EnumProperty(name="Style", items=styles.enum_items,
+                         default=styles.BUILT_IN.index(ps.DEFAULTS["preset"]),
                          update=_on_style)
     # Line
     hand: _i("Hand", "hand", "From a ruler (0) to a loose hand (100)", "PERCENTAGE")
@@ -86,13 +104,15 @@ class CroquisSettings(bpy.types.PropertyGroup):
     # Technique, light, materials
     technique: EnumProperty(name="Technique", items=TECHNIQUES,
                             default=ps.DEFAULTS["technique"], update=_on_choice)
-    light: EnumProperty(name="Light", items=LIGHTS, default=ps.DEFAULTS["light"])
+    light: EnumProperty(name="Light", items=LIGHTS, default=ps.DEFAULTS["light"],
+                        update=_on_choice)
     shadows: _b("Shadows", True, "Cast shadows, on the model and the ground")
     materials: EnumProperty(name="Materials", items=MATERIALS,
                             default=ps.DEFAULTS["materials"], update=_on_choice)
     ink_texture: _b("Dry brush", False, "High contrast: the black breaks up at its edges")
     natural: BoolProperty(name="Natural variation", default=False,
-                          description="Each area of colour or hatching its own slant")
+                          description="Each area of colour or hatching its own slant",
+                          update=_on_choice)
     # Hatching
     hatching: _b("Hatching in the shade", False, "Hatch the shade in ink")
     hatch_along: _b("Along the faces", True, "Along each face (off: one diagonal)")
@@ -108,9 +128,11 @@ class CroquisSettings(bpy.types.PropertyGroup):
     nib: _i("Nib", "nib")
     strength: _i("Intensity", "strength")
     # Paper and size
-    paper: EnumProperty(name="Paper", items=lambda _s, _c: _papers_cached())
+    paper: EnumProperty(name="Paper", items=lambda _s, _c: _papers_cached(),
+                        update=_on_choice)
     paper_image: StringProperty(name="Image", subtype="FILE_PATH",
-                                description="An image of your own as the paper")
+                                description="An image of your own as the paper",
+                                update=_on_choice)
     size: EnumProperty(name="Size", items=SIZES, default="2400")
     custom_width: _i("Width", "custom_width", "The drawing's width in pixels", "PIXEL")
     source: EnumProperty(name="From", items=[
