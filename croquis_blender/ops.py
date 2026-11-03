@@ -81,7 +81,7 @@ def draw(context, settings=None, width: int | None = None):
         view_src, ps.line_style(s), width, marker=ps.marker_style(s),
         composition=ps.composition(s), paper_kind=s["paper"],
         paper_image=bpy.path.abspath(s["paper_image"]) if s["paper_image"] else "",
-        transparent=context.scene.render.film_transparent, opaque=s["opaque"])
+        transparent=context.scene.render.film_transparent, opacity=s["opacity"] / 100.0)
     return layers, time.perf_counter() - t
 
 

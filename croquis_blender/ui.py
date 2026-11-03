@@ -99,9 +99,10 @@ class CROQUIS_PT_composition(_Base, bpy.types.Panel):
         clear = context.scene.render.film_transparent
         if clear:
             col.label(text="The scene's Film is transparent: no paper", icon="IMAGE_ALPHA")
-            col.prop(s, "opaque")
+            col.prop(s, "opacity", slider=True)
         sub = col.column()
-        sub.active = not clear
+        # On clear film the paper is only under a model with some opacity.
+        sub.active = not clear or s.opacity > 0
         sub.prop(s, "paper")
         if s.paper == "custom":
             sub.prop(s, "paper_image")

@@ -27,7 +27,7 @@ DEFAULTS = {
     "hatching": False, "hatch_along": True, "hatch_turn": 0,
     "offset": 12, "nib": 26, "strength": 100,
     "unfinished": True, "construction": True, "ground": False,
-    "opaque": False,                  # on clear film: the model hides what is behind
+    "opacity": 0,                     # on clear film: how much the model hides
     "size": 2400,
     "paper": "cream", "paper_image": "",
     "custom_format": "A4", "custom_width": 3000, "dpi": 300,
@@ -38,7 +38,7 @@ DEFAULTS = {
 RANGES = {
     "hand": (0, 100), "weight": (0, 40), "overshoot": (0, 200),
     "offset": (0, 40), "nib": (10, 60), "strength": (20, 150),
-    "hatch_turn": (-90, 90), "custom_width": (400, 12000),
+    "hatch_turn": (-90, 90), "custom_width": (400, 12000), "opacity": (0, 100),
 }
 #: The values the panel offers for each choice; another falls back to the
 #: default.

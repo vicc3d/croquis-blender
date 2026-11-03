@@ -11,6 +11,7 @@ import time
 from pathlib import Path
 
 import bpy
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -101,7 +102,7 @@ film, _secs = ops.draw(bpy.context, width=800)
 rgba = film.rgba()
 check(film.solid is None and (rgba[:, :, 3] < 255).mean() > 0.5,
       "the model see-through where it is white, unless asked opaque")
-s.opaque = True
+s.opacity = 100
 film, _secs = ops.draw(bpy.context, width=800)
 rgba = film.rgba()
 corner = rgba[:20, :20, 3]
@@ -109,6 +110,15 @@ check(film.transparent and rgba.shape[2] == 4 and corner.max() == 0,
       "transparent film: clear where nothing is drawn")
 solid = film.solid > 0.999
 check((rgba[:, :, 3][solid] == 255).all(), "the model opaque, hiding what lies behind")
+paper = film.sheet[film.origin[1]:, film.origin[0]:][:film.size[1], :film.size[0]]
+on_paper = paper * film.fill
+check(np.abs(film.film_rgba()[:, :, :3][solid] * 255.0 - on_paper[solid]).max() < 2,
+      "its paper under its colour")
+s.opacity = 50
+half, _secs = ops.draw(bpy.context, width=800)
+ha = half.rgba()[:, :, 3][solid]
+check(ha.min() >= 120 and (ha < 255).any(), "half opacity: the model half hides what lies behind")
+s.opacity = 100
 check(((rgba[:, :, 3] > 0) & (rgba[:, :, 3] < 255) & ~solid).any(),
       "its shadow off the model see-through")
 over = rgba[:, :, :3] * (rgba[:, :, 3:] / 255.0) + 255.0 * (1 - rgba[:, :, 3:] / 255.0)
@@ -123,7 +133,7 @@ fsvg = (out / "blender-film.svg").read_text()
 check('id="paper"' not in fsvg and "multiply" not in fsvg and 'id="fill"' in fsvg,
       "the SVG on clear film: no paper, the colour with its transparency")
 scene.render.film_transparent = False
-s.opaque = False
+s.opacity = 0
 s.preset = "hatched"
 check(s.preset == "hatched", "a style sets its choices")
 s.hand = 10

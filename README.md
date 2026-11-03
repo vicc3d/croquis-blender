@@ -37,8 +37,8 @@ style and press a button.
   an image of your own.
 - **Layers to compose:** with the scene's **Film ▸ Transparent**, the
   drawing comes on clear film, its colour and shadows see-through, to lay
-  over a background; **Opaque model** makes the model hide what lies
-  behind it. A line weight of 0 draws the colour and shade
+  over a background; **Model opacity** makes the model hide what lies
+  behind it, its paper under its colour. A line weight of 0 draws the colour and shade
   alone, for that background.
 - **Output:** S, M, L or a width of your own; PNG, **SVG in layers** (paper,
   colour, and the ink as editable vector paths) or PDF.
@@ -109,8 +109,8 @@ configuración: eliges un estilo y pulsas un botón.
   una imagen tuya.
 - **Capas para componer:** con **Film ▸ Transparent** en la escena, el
   dibujo sale sobre película transparente, con el color y las sombras
-  translúcidos, para ponerlo sobre un fondo; **Modelo opaco** hace que el
-  modelo tape lo que hay detrás. Con grosor de línea 0 se
+  translúcidos, para ponerlo sobre un fondo; con **Opacidad del modelo**,
+  el modelo tapa lo que hay detrás, con su papel bajo el color. Con grosor de línea 0 se
   dibujan solo el color y la sombra, para ese fondo.
 - **Salida:** S, M, L o un ancho a tu medida; PNG, **SVG por capas**
   (papel, color y la tinta en trazos vectoriales editables) o PDF.
@@ -169,8 +169,8 @@ configuração: escolha um estilo e clique num botão.
   pontilhado ou uma imagem sua.
 - **Camadas para compor:** com **Film ▸ Transparent** na cena, o desenho
   sai sobre filme transparente, com a cor e as sombras translúcidas, para
-  colocar sobre um fundo; **Modelo opaco** faz o modelo cobrir o que está
-  atrás. Com espessura de linha 0,
+  colocar sobre um fundo; com **Opacidade do modelo**, o modelo cobre o
+  que está atrás, com seu papel sob a cor. Com espessura de linha 0,
   só a cor e a sombra, para esse fundo.
 - **Saída:** S, M, L ou uma largura sob medida; PNG, **SVG em camadas**
   (papel, cor e o nanquim em traços vetoriais editáveis) ou PDF.

@@ -180,8 +180,9 @@ class Layers:
     drawing sits at ``origin`` on the sheet, ``size`` big (a page format
     leaves a margin round it). ``transparent``: drawn on clear film, to lay
     over another picture, instead of on the paper (:meth:`rgba`), with
-    ``solid`` (h, w) the share of each pixel an opaque model covers, or
-    None when the model is see-through where it is white."""
+    ``solid`` (h, w) how much the model hides of what lies behind each
+    pixel (its share of the pixel, times its opacity), or None when the
+    model is see-through where it is white."""
 
     def __init__(self, sheet, fill, strokes, origin, size, transparent=False,
                  solid=None) -> None:
@@ -222,18 +223,22 @@ class Layers:
     def film_rgba(self) -> np.ndarray:
         """The colour on clear film, (h, w, 4) floats 0..1, where the drawing
         sits: the shadows and washes see-through (white taken out as
-        transparency, as a marker on tracing film), and an opaque model
-        (``solid``) white under its colour, so it hides what lies behind it.
-        Over white it looks as the drawing on white paper."""
+        transparency, as a marker on tracing film), and the model as far as
+        it is opaque (``solid``) on its paper, the drawing cut out along its
+        outline, so it hides what lies behind it and sits on a background
+        drawn on the same paper. Over white, a see-through model looks as
+        the drawing on white paper."""
         w, h = self.size
+        ox, oy = self.origin
         f = np.ones((h, w, 3)) if self.fill is None else np.clip(self.fill, 0.0, 1.0)
         f = np.broadcast_to(f, (h, w, 3))
         a = (1.0 - f).max(axis=2)
         safe = np.where(a > 1e-6, a, 1.0)[:, :, None]
         wash = np.clip(1.0 - (1.0 - f) / safe, 0.0, 1.0)
         solid = np.zeros((h, w)) if self.solid is None else np.clip(self.solid, 0.0, 1.0)
+        on_paper = self.sheet[oy:oy + h, ox:ox + w] / 255.0 * f
         alpha = solid + (1.0 - solid) * a
-        rgb = (f * solid[:, :, None] + wash * ((1.0 - solid) * a)[:, :, None]) \
+        rgb = (on_paper * solid[:, :, None] + wash * ((1.0 - solid) * a)[:, :, None]) \
             / np.where(alpha > 1e-6, alpha, 1.0)[:, :, None]
         return np.concatenate([rgb, alpha[:, :, None]], axis=2)
 
@@ -270,7 +275,7 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
            composition: cp.Composition | None = None,
            paper_kind: str = "cream", paper_image: str = "",
            page: tuple | None = None, transparent: bool = False,
-           opaque: bool = False) -> Layers:
+           opacity: float = 0.0) -> Layers:
     """The current view as a freehand drawing, as its :class:`Layers`:
     ``width`` pixels wide (the height follows the view), on a sheet that
     size, or centred on a ``page`` = (width, height) sheet. Paper, the fill
@@ -279,8 +284,8 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
     :class:`View` the caller already made. A line width of 0 leaves the
     lines and construction lines out: the colour and shade alone, as for a
     background. ``transparent``: on clear film (:meth:`Layers.rgba`), the
-    model see-through where it is white, or ``opaque``, hiding what lies
-    behind it."""
+    model see-through where it is white, or as far as ``opacity`` (0..1)
+    says, on its paper, hiding what lies behind it."""
     width, height = drawing_size(viewport.camera, width)
     view = view if view is not None else View(viewport, width, height)
     comp = composition if composition is not None else cp.Composition(
@@ -318,5 +323,6 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
         shift = np.array([ox, oy], dtype=np.float64)
         strokes = [st.Stroke(s.outline + shift, s.opacity) for s in strokes]
     solid = (resize_array((view.index >= 0)[:, :, None].astype(np.float64),
-                          width, height)[:, :, 0] if transparent and opaque else None)
+                          width, height)[:, :, 0] * min(max(opacity, 0.0), 1.0)
+             if transparent and opacity > 0 else None)
     return Layers(sheet, fill, strokes, (ox, oy), (width, height), transparent, solid)

@@ -121,8 +121,9 @@ class CroquisSettings(bpy.types.PropertyGroup):
     unfinished: _b("Free edges", True, "The colour thins out toward the edges")
     construction: _b("Construction", True, "Some lines run on as construction lines")
     ground: _b("Ground", False, "Loose strokes on the ground")
-    opaque: _b("Opaque model", False,
-               "On clear film: the model hides what lies behind it, white under its colour")
+    opacity: _i("Model opacity", "opacity",
+                "On clear film: how much the model hides what lies behind it, "
+                "its paper under its colour", "PERCENTAGE")
     # Fine settings
     weight: _i("Line weight", "weight", "0: no lines, only colour and shade")
     overshoot: _i("Overshoot", "overshoot")
