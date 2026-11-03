@@ -27,6 +27,7 @@ DEFAULTS = {
     "hatching": False, "hatch_along": True, "hatch_turn": 0,
     "offset": 12, "nib": 26, "strength": 100,
     "unfinished": True, "construction": True, "ground": False,
+    "opaque": False,                  # on clear film: the model hides what is behind
     "size": 2400,
     "paper": "cream", "paper_image": "",
     "custom_format": "A4", "custom_width": 3000, "dpi": 300,

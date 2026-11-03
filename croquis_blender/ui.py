@@ -99,6 +99,7 @@ class CROQUIS_PT_composition(_Base, bpy.types.Panel):
         clear = context.scene.render.film_transparent
         if clear:
             col.label(text="The scene's Film is transparent: no paper", icon="IMAGE_ALPHA")
+            col.prop(s, "opaque")
         sub = col.column()
         sub.active = not clear
         sub.prop(s, "paper")

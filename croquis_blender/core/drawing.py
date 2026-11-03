@@ -180,7 +180,8 @@ class Layers:
     drawing sits at ``origin`` on the sheet, ``size`` big (a page format
     leaves a margin round it). ``transparent``: drawn on clear film, to lay
     over another picture, instead of on the paper (:meth:`rgba`), with
-    ``solid`` (h, w) the share of each pixel the model covers."""
+    ``solid`` (h, w) the share of each pixel an opaque model covers, or
+    None when the model is see-through where it is white."""
 
     def __init__(self, sheet, fill, strokes, origin, size, transparent=False,
                  solid=None) -> None:
@@ -220,10 +221,10 @@ class Layers:
 
     def film_rgba(self) -> np.ndarray:
         """The colour on clear film, (h, w, 4) floats 0..1, where the drawing
-        sits: the model opaque, white paper under its colour, so it hides
-        what lies behind it; off the model, the shadows and washes see-through
-        (white taken out as transparency, as a marker on tracing film). Over
-        white it looks as the drawing on white paper."""
+        sits: the shadows and washes see-through (white taken out as
+        transparency, as a marker on tracing film), and an opaque model
+        (``solid``) white under its colour, so it hides what lies behind it.
+        Over white it looks as the drawing on white paper."""
         w, h = self.size
         f = np.ones((h, w, 3)) if self.fill is None else np.clip(self.fill, 0.0, 1.0)
         f = np.broadcast_to(f, (h, w, 3))
@@ -268,7 +269,8 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
            marker: mk.MarkerStyle | None = None,
            composition: cp.Composition | None = None,
            paper_kind: str = "cream", paper_image: str = "",
-           page: tuple | None = None, transparent: bool = False) -> Layers:
+           page: tuple | None = None, transparent: bool = False,
+           opaque: bool = False) -> Layers:
     """The current view as a freehand drawing, as its :class:`Layers`:
     ``width`` pixels wide (the height follows the view), on a sheet that
     size, or centred on a ``page`` = (width, height) sheet. Paper, the fill
@@ -276,7 +278,9 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
     construction and ground strokes, hatching, then the lines. ``view``: a
     :class:`View` the caller already made. A line width of 0 leaves the
     lines and construction lines out: the colour and shade alone, as for a
-    background. ``transparent``: on clear film (:meth:`Layers.rgba`)."""
+    background. ``transparent``: on clear film (:meth:`Layers.rgba`), the
+    model see-through where it is white, or ``opaque``, hiding what lies
+    behind it."""
     width, height = drawing_size(viewport.camera, width)
     view = view if view is not None else View(viewport, width, height)
     comp = composition if composition is not None else cp.Composition(
@@ -314,5 +318,5 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
         shift = np.array([ox, oy], dtype=np.float64)
         strokes = [st.Stroke(s.outline + shift, s.opacity) for s in strokes]
     solid = (resize_array((view.index >= 0)[:, :, None].astype(np.float64),
-                          width, height)[:, :, 0] if transparent else None)
+                          width, height)[:, :, 0] if transparent and opaque else None)
     return Layers(sheet, fill, strokes, (ox, oy), (width, height), transparent, solid)

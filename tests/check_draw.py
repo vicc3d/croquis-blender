@@ -99,6 +99,11 @@ scene.render.film_transparent = True
 s.preset = "colour_marker"
 film, _secs = ops.draw(bpy.context, width=800)
 rgba = film.rgba()
+check(film.solid is None and (rgba[:, :, 3] < 255).mean() > 0.5,
+      "the model see-through where it is white, unless asked opaque")
+s.opaque = True
+film, _secs = ops.draw(bpy.context, width=800)
+rgba = film.rgba()
 corner = rgba[:20, :20, 3]
 check(film.transparent and rgba.shape[2] == 4 and corner.max() == 0,
       "transparent film: clear where nothing is drawn")
@@ -118,6 +123,7 @@ fsvg = (out / "blender-film.svg").read_text()
 check('id="paper"' not in fsvg and "multiply" not in fsvg and 'id="fill"' in fsvg,
       "the SVG on clear film: no paper, the colour with its transparency")
 scene.render.film_transparent = False
+s.opaque = False
 s.preset = "hatched"
 check(s.preset == "hatched", "a style sets its choices")
 s.hand = 10
