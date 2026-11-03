@@ -17,7 +17,7 @@ for p in rna.properties:
         for it in p.enum_items: found |= {it.name, it.description}
 for it in croquis.styles.enum_items(None, None):
     if not it[0].startswith("own_"): found |= {it[1], it[2]}
-found |= {"A style of your own", "My style", "Give the style a name", "Saved the style {name}", "Deleted the style {name}"}
+found |= {"The scene's Film is transparent: no paper", "A style of your own", "My style", "Give the style a name", "Saved the style {name}", "Deleted the style {name}"}
 for it in __import__("croquis_blender.props", fromlist=["x"])._papers_cached():
     found |= {it[1], it[2]}
 for cls in bpy.types.Panel.__subclasses__():

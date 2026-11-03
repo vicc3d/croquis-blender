@@ -35,7 +35,7 @@ DEFAULTS = {
 #: The range the panel lets each number take; settings read back are held
 #: to it (a damaged file must not ask for a drawing gigapixels wide).
 RANGES = {
-    "hand": (0, 100), "weight": (5, 40), "overshoot": (0, 200),
+    "hand": (0, 100), "weight": (0, 40), "overshoot": (0, 200),
     "offset": (0, 40), "nib": (10, 60), "strength": (20, 150),
     "hatch_turn": (-90, 90), "custom_width": (400, 12000),
 }

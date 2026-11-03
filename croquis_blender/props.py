@@ -122,7 +122,7 @@ class CroquisSettings(bpy.types.PropertyGroup):
     construction: _b("Construction", True, "Some lines run on as construction lines")
     ground: _b("Ground", False, "Loose strokes on the ground")
     # Fine settings
-    weight: _i("Line weight", "weight")
+    weight: _i("Line weight", "weight", "0: no lines, only colour and shade")
     overshoot: _i("Overshoot", "overshoot")
     offset: _i("Off the lines", "offset")
     nib: _i("Nib", "nib")

@@ -178,14 +178,19 @@ class Layers:
     of paper (H, W, 3), the fill as the factors it multiplies the paper by
     (or None), and the ink strokes (polygons, in the sheet's pixels). The
     drawing sits at ``origin`` on the sheet, ``size`` big (a page format
-    leaves a margin round it)."""
+    leaves a margin round it). ``transparent``: drawn on clear film, to lay
+    over another picture, instead of on the paper (:meth:`rgba`), with
+    ``solid`` (h, w) the share of each pixel the model covers."""
 
-    def __init__(self, sheet, fill, strokes, origin, size) -> None:
+    def __init__(self, sheet, fill, strokes, origin, size, transparent=False,
+                 solid=None) -> None:
         self.sheet = sheet
         self.fill = fill
         self.strokes = strokes
         self.origin = origin
         self.size = size
+        self.transparent = transparent
+        self.solid = solid
 
     @property
     def width(self) -> int:
@@ -213,6 +218,44 @@ class Layers:
         raster.lay_strokes(rgb, self.strokes, INK)
         return np.clip(np.rint(rgb), 0, 255).astype(np.uint8)
 
+    def film_rgba(self) -> np.ndarray:
+        """The colour on clear film, (h, w, 4) floats 0..1, where the drawing
+        sits: the model opaque, white paper under its colour, so it hides
+        what lies behind it; off the model, the shadows and washes see-through
+        (white taken out as transparency, as a marker on tracing film). Over
+        white it looks as the drawing on white paper."""
+        w, h = self.size
+        f = np.ones((h, w, 3)) if self.fill is None else np.clip(self.fill, 0.0, 1.0)
+        f = np.broadcast_to(f, (h, w, 3))
+        a = (1.0 - f).max(axis=2)
+        safe = np.where(a > 1e-6, a, 1.0)[:, :, None]
+        wash = np.clip(1.0 - (1.0 - f) / safe, 0.0, 1.0)
+        solid = np.zeros((h, w)) if self.solid is None else np.clip(self.solid, 0.0, 1.0)
+        alpha = solid + (1.0 - solid) * a
+        rgb = (f * solid[:, :, None] + wash * ((1.0 - solid) * a)[:, :, None]) \
+            / np.where(alpha > 1e-6, alpha, 1.0)[:, :, None]
+        return np.concatenate([rgb, alpha[:, :, None]], axis=2)
+
+    def rgba(self) -> np.ndarray:
+        """The drawing on clear film as (H, W, 4) bytes: no paper, the fill
+        as colour with its transparency, the ink over it."""
+        from . import raster
+        h, w = self.height, self.width
+        film = np.zeros((h, w, 4))
+        ox, oy = self.origin
+        fw, fh = self.size
+        film[oy:oy + fh, ox:ox + fw] = self.film_rgba()
+        cover = np.zeros((h, w, 3))
+        raster.lay_strokes(cover, self.strokes, (255, 255, 255))
+        ink_a = cover[:, :, 0] / 255.0
+        under = film[:, :, 3] * (1.0 - ink_a)
+        a = ink_a + under
+        safe = np.where(a > 1e-6, a, 1.0)
+        rgb = (np.array(INK) / 255.0 * ink_a[:, :, None]
+               + film[:, :, :3] * under[:, :, None]) / safe[:, :, None]
+        out = np.concatenate([rgb, a[:, :, None]], axis=2)
+        return np.clip(np.rint(out * 255.0), 0, 255).astype(np.uint8)
+
 
 def page_size(fmt: str, dpi: int, landscape: bool) -> tuple:
     """A paper format's size in pixels: ``A5``, ``A4`` or ``A3`` at ``dpi``."""
@@ -225,13 +268,15 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
            marker: mk.MarkerStyle | None = None,
            composition: cp.Composition | None = None,
            paper_kind: str = "cream", paper_image: str = "",
-           page: tuple | None = None) -> Layers:
+           page: tuple | None = None, transparent: bool = False) -> Layers:
     """The current view as a freehand drawing, as its :class:`Layers`:
     ``width`` pixels wide (the height follows the view), on a sheet that
     size, or centred on a ``page`` = (width, height) sheet. Paper, the fill
     (``marker``: marker or watercolour or high contrast, if on), the ink:
     construction and ground strokes, hatching, then the lines. ``view``: a
-    :class:`View` the caller already made."""
+    :class:`View` the caller already made. A line width of 0 leaves the
+    lines and construction lines out: the colour and shade alone, as for a
+    background. ``transparent``: on clear film (:meth:`Layers.rgba`)."""
     width, height = drawing_size(viewport.camera, width)
     view = view if view is not None else View(viewport, width, height)
     comp = composition if composition is not None else cp.Composition(
@@ -252,7 +297,8 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
     segs, outline, weight = st.simplify(view.segs, view.outline, height)
     kinds = outline if style.profile_scale != 1.0 else None
     strokes = []
-    if comp.construction:
+    lines = style.width > 0
+    if comp.construction and lines:
         strokes += cp.construction_strokes(view.segs, height, width, style.hand,
                                            index=view.index, to_buffer=view.scale)
     if comp.ground:
@@ -262,8 +308,11 @@ def render(viewport, style: st.LineStyle, width: int, view: View | None = None,
         if fade is not None:
             shade = cp.thin_out(shade, fade, view.scale)
         strokes += shade
-    strokes += st.strokes_for(segs, kinds, style, height, weight)
+    if lines:
+        strokes += st.strokes_for(segs, kinds, style, height, weight)
     if ox or oy:
         shift = np.array([ox, oy], dtype=np.float64)
         strokes = [st.Stroke(s.outline + shift, s.opacity) for s in strokes]
-    return Layers(sheet, fill, strokes, (ox, oy), (width, height))
+    solid = (resize_array((view.index >= 0)[:, :, None].astype(np.float64),
+                          width, height)[:, :, 0] if transparent else None)
+    return Layers(sheet, fill, strokes, (ox, oy), (width, height), transparent, solid)

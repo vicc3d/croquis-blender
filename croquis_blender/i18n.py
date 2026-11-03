@@ -7,6 +7,7 @@ import bpy
 #: Every word of the panel, the operators and their messages.
 WORDS = {
     "es": {
+        "0: no lines, only colour and shade": "0: sin líneas, solo color y sombra",
         "1600 pixels wide": "1600 píxeles de ancho",
         "2400 pixels wide": "2400 píxeles de ancho",
         "3600 pixels wide": "3600 píxeles de ancho",
@@ -110,6 +111,7 @@ WORDS = {
         "The drawing as a picture": "El dibujo como imagen",
         "The drawing's width in pixels": "El ancho del dibujo en píxeles",
         "The scene has no camera: add one, or draw from this view": "La escena no tiene cámara: agrega una, o dibuja desde esta vista",
+        "The scene's Film is transparent: no paper": "La película de la escena es transparente: sin papel",
         "The scene's Sun lamp": "La lámpara Sun de la escena",
         "The scene's camera, at the render's shape": "La cámara de la escena, con la forma del render",
         "This view": "Esta vista",
@@ -127,6 +129,7 @@ WORDS = {
         "Your own choices": "Tus propias elecciones",
     },
     "pt-BR": {
+        "0: no lines, only colour and shade": "0: sem linhas, só cor e sombra",
         "1600 pixels wide": "1600 pixels de largura",
         "2400 pixels wide": "2400 pixels de largura",
         "3600 pixels wide": "3600 pixels de largura",
@@ -230,6 +233,7 @@ WORDS = {
         "The drawing as a picture": "O desenho como imagem",
         "The drawing's width in pixels": "A largura do desenho em pixels",
         "The scene has no camera: add one, or draw from this view": "A cena não tem câmera: adicione uma, ou desenhe desta vista",
+        "The scene's Film is transparent: no paper": "O filme da cena é transparente: sem papel",
         "The scene's Sun lamp": "A lâmpada Sun da cena",
         "The scene's camera, at the render's shape": "A câmera da cena, com a forma do render",
         "This view": "Esta vista",

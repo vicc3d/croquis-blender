@@ -35,6 +35,10 @@ style and press a button.
   people and trees with an image's transparency) are left out.
 - **Paper:** cream, white, kraft, toned grey, tracing, squared, dotted, or
   an image of your own.
+- **Layers to compose:** with the scene's **Film ▸ Transparent**, the
+  drawing comes on clear film: the model opaque, its shadows see-through,
+  to lay over a background. A line weight of 0 draws the colour and shade
+  alone, for that background.
 - **Output:** S, M, L or a width of your own; PNG, **SVG in layers** (paper,
   colour, and the ink as editable vector paths) or PDF.
 - **Large scenes:** fine detail is simplified as a hand would; a scene of
@@ -102,6 +106,10 @@ configuración: eliges un estilo y pulsas un botón.
   transparencia) se dejan fuera.
 - **Papel:** crema, blanco, kraft, gris, calco, cuadriculado, punteado o
   una imagen tuya.
+- **Capas para componer:** con **Film ▸ Transparent** en la escena, el
+  dibujo sale sobre película transparente: el modelo opaco y sus sombras
+  translúcidas, para ponerlo sobre un fondo. Con grosor de línea 0 se
+  dibujan solo el color y la sombra, para ese fondo.
 - **Salida:** S, M, L o un ancho a tu medida; PNG, **SVG por capas**
   (papel, color y la tinta en trazos vectoriales editables) o PDF.
 - **Escenas grandes:** el detalle fino se simplifica como lo haría una
@@ -157,6 +165,10 @@ configuração: escolha um estilo e clique num botão.
   transparência) ficam de fora.
 - **Papel:** creme, branco, kraft, cinza, vegetal, quadriculado,
   pontilhado ou uma imagem sua.
+- **Camadas para compor:** com **Film ▸ Transparent** na cena, o desenho
+  sai sobre filme transparente: o modelo opaco e suas sombras
+  translúcidas, para colocar sobre um fundo. Com espessura de linha 0,
+  só a cor e a sombra, para esse fundo.
 - **Saída:** S, M, L ou uma largura sob medida; PNG, **SVG em camadas**
   (papel, cor e o nanquim em traços vetoriais editáveis) ou PDF.
 - **Cenas grandes:** o detalhe fino é simplificado como faria uma mão; uma

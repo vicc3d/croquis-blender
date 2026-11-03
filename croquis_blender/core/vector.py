@@ -7,7 +7,8 @@ of a stroke with its changing width), so it goes out as a path, editable
 in Inkscape, Affinity or Illustrator. The paper and the fill are
 textures: in SVG each its own layer under the ink, the fill multiplied
 onto the paper as a marker's ink is; in PDF one picture, the paper with
-the fill laid on it.
+the fill laid on it. A drawing on clear film has no paper in SVG, and its
+fill is colour with its transparency.
 
 Pictures are encoded by Blender (``encode(rgb, fmt, quality) -> bytes``,
 ``fmt`` "PNG" or "JPG", see ops.py); without
@@ -28,19 +29,20 @@ INK = (29, 26, 23)
 # ---- Pictures -------------------------------------------------------------
 
 def png_bytes(rgb: np.ndarray) -> bytes:
-    """``rgb`` (H, W, 3) bytes as a PNG file."""
+    """``rgb`` (H, W, 3) bytes, or (H, W, 4) with transparency, as a PNG
+    file."""
     rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
-    h, w = rgb.shape[:2]
-    raw = np.empty((h, w * 3 + 1), np.uint8)
+    h, w, n = rgb.shape
+    raw = np.empty((h, w * n + 1), np.uint8)
     raw[:, 0] = 0                                    # no filter
-    raw[:, 1:] = rgb.reshape(h, w * 3)
+    raw[:, 1:] = rgb.reshape(h, w * n)
 
     def chunk(kind: bytes, data: bytes) -> bytes:
         return (struct.pack(">I", len(data)) + kind + data
                 + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF))
 
     return (b"\x89PNG\r\n\x1a\n"
-            + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 6 if n == 4 else 2, 0, 0, 0))
             + chunk(b"IDAT", zlib.compress(raw.tobytes(), 6))
             + chunk(b"IEND", b""))
 
@@ -88,19 +90,28 @@ def svg_text(layers, encode=None, labels=("Paper", "Colour and shade", "Ink")) -
         f'xmlns:xlink="http://www.w3.org/1999/xlink" '
         f'xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" '
         f'width="{w}" height="{h}" viewBox="0 0 {w} {h}">',
-        f'  <g id="paper" inkscape:groupmode="layer" inkscape:label={quoteattr(paper)}>',
-        f'    <image x="0" y="0" width="{w}" height="{h}" '
-        f'xlink:href="{_data_uri(_bytes(layers.sheet), "JPG", 92, encode)}"/>',
-        "  </g>",
     ]
-    if layers.fill is not None:
+    clear = getattr(layers, "transparent", False)
+    if not clear:
+        out += [
+            f'  <g id="paper" inkscape:groupmode="layer" inkscape:label={quoteattr(paper)}>',
+            f'    <image x="0" y="0" width="{w}" height="{h}" '
+            f'xlink:href="{_data_uri(_bytes(layers.sheet), "JPG", 92, encode)}"/>',
+            "  </g>",
+        ]
+    if layers.fill is not None or clear:
         ox, oy = layers.origin
         fw, fh = layers.size
+        # On paper the fill multiplies it; on clear film it is the model
+        # opaque and the washes with their transparency (multiplied onto
+        # nothing it would show its white).
+        picture = layers.film_rgba() if clear else layers.fill
+        blend = "" if clear else ' style="mix-blend-mode:multiply"'
         out += [
             f'  <g id="fill" inkscape:groupmode="layer" '
-            f'inkscape:label={quoteattr(colour)} style="mix-blend-mode:multiply">',
+            f'inkscape:label={quoteattr(colour)}{blend}>',
             f'    <image x="{ox}" y="{oy}" width="{fw}" height="{fh}" '
-            f'xlink:href="{_data_uri(_bytes(layers.fill * 255.0), "PNG", -1, encode)}"/>',
+            f'xlink:href="{_data_uri(_bytes(picture * 255.0), "PNG", -1, encode)}"/>',
             "  </g>",
         ]
     out.append(f'  <g id="ink" inkscape:groupmode="layer" inkscape:label={quoteattr(ink_name)} '

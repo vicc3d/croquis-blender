@@ -80,7 +80,8 @@ def draw(context, settings=None, width: int | None = None):
     layers = drawing.render(
         view_src, ps.line_style(s), width, marker=ps.marker_style(s),
         composition=ps.composition(s), paper_kind=s["paper"],
-        paper_image=bpy.path.abspath(s["paper_image"]) if s["paper_image"] else "")
+        paper_image=bpy.path.abspath(s["paper_image"]) if s["paper_image"] else "",
+        transparent=context.scene.render.film_transparent)
     return layers, time.perf_counter() - t
 
 
@@ -88,11 +89,11 @@ def blender_encode(rgb, fmt: str, quality: int = 90) -> bytes:
     """A picture encoded by Blender (JPEG or PNG), for the SVG and PDF."""
     import os
     import tempfile
-    h, w = rgb.shape[:2]
-    img = bpy.data.images.new("croquis-encode", w, h, alpha=False)
+    h, w, n = rgb.shape
+    img = bpy.data.images.new("croquis-encode", w, h, alpha=n == 4)
     try:
         px = np.ones((h, w, 4), np.float32)
-        px[:, :, :3] = np.asarray(rgb, np.float32)[::-1] / 255.0
+        px[:, :, :n] = np.asarray(rgb, np.float32)[::-1] / 255.0
         img.pixels.foreach_set(px.reshape(-1))
         ext = ".jpg" if fmt == "JPG" else ".png"
         fd, path = tempfile.mkstemp(suffix=ext)
@@ -125,16 +126,18 @@ def save_drawing(layers, path: str, fmt: str) -> bool:
 
 
 def to_image(layers, name: str = IMAGE_NAME):
-    """The drawing in Blender's image ``name`` (made or replaced)."""
-    rgb = layers.pixels()
-    h, w = rgb.shape[:2]
+    """The drawing in Blender's image ``name`` (made or replaced); on clear
+    film, with its transparency."""
+    clear = getattr(layers, "transparent", False)
+    rgb = layers.rgba() if clear else layers.pixels()
+    h, w, n = rgb.shape
     img = bpy.data.images.get(name)
-    if img is None or tuple(img.size) != (w, h):
+    if img is None or tuple(img.size) != (w, h) or (img.depth == 32) != clear:
         if img is not None:
             bpy.data.images.remove(img)
-        img = bpy.data.images.new(name, w, h, alpha=False)
+        img = bpy.data.images.new(name, w, h, alpha=clear)
     px = np.ones((h, w, 4), np.float32)
-    px[:, :, :3] = rgb[::-1] / 255.0              # Blender's rows go up
+    px[:, :, :n] = rgb[::-1] / 255.0              # Blender's rows go up
     img.pixels.foreach_set(px.reshape(-1))
     img.update()
     return img

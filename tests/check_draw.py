@@ -84,6 +84,41 @@ check("image/jpeg" in svg, "the SVG's paper encoded by Blender (JPEG)")
 pdf = (out / "blender-hatched.pdf").read_bytes()
 check(pdf.startswith(b"%PDF-1.4") and pdf.rstrip().endswith(b"%%EOF"), "the PDF is whole")
 check(b"/DCTDecode" in pdf, "the PDF's picture encoded by Blender (JPEG)")
+
+# A line weight of 0: no lines, the colour and shade alone (a background).
+s.preset = "watercolour"
+s.hatching = False
+weight = s.weight
+s.weight = 0
+bare, _secs = ops.draw(bpy.context, width=800)
+check(len(bare.strokes) == 0 and bare.fill is not None, "weight 0: no lines, the colour stays")
+s.weight = weight
+
+# The scene's Film ▸ Transparent: the drawing on clear film, no paper.
+scene.render.film_transparent = True
+s.preset = "colour_marker"
+film, _secs = ops.draw(bpy.context, width=800)
+rgba = film.rgba()
+corner = rgba[:20, :20, 3]
+check(film.transparent and rgba.shape[2] == 4 and corner.max() == 0,
+      "transparent film: clear where nothing is drawn")
+solid = film.solid > 0.999
+check((rgba[:, :, 3][solid] == 255).all(), "the model opaque, hiding what lies behind")
+check(((rgba[:, :, 3] > 0) & (rgba[:, :, 3] < 255) & ~solid).any(),
+      "its shadow off the model see-through")
+over = rgba[:, :, :3] * (rgba[:, :, 3:] / 255.0) + 255.0 * (1 - rgba[:, :, 3:] / 255.0)
+check(abs(float((over / 255.0).mean()) - 1.0) < 0.2, "over white it reads as on white paper")
+path = out / "blender-film.png"
+check(ops.save_drawing(film, str(path), "PNG"), "saved on clear film as PNG")
+back = bpy.data.images.load(str(path))
+check(back.depth == 32 and back.channels == 4, "the PNG keeps its transparency")
+bpy.data.images.remove(back)
+ops.save_drawing(film, str(out / "blender-film.svg"), "SVG")
+fsvg = (out / "blender-film.svg").read_text()
+check('id="paper"' not in fsvg and "multiply" not in fsvg and 'id="fill"' in fsvg,
+      "the SVG on clear film: no paper, the colour with its transparency")
+scene.render.film_transparent = False
+s.preset = "hatched"
 check(s.preset == "hatched", "a style sets its choices")
 s.hand = 10
 check(s.preset == "hatched", "the hand is not a style's choice")

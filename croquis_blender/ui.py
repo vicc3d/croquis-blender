@@ -95,9 +95,15 @@ class CROQUIS_PT_composition(_Base, bpy.types.Panel):
         row.prop(s, "unfinished", toggle=True)
         row.prop(s, "construction", toggle=True)
         row.prop(s, "ground", toggle=True)
-        col.prop(s, "paper")
+        # The scene's Film ▸ Transparent draws on clear film, with no paper.
+        clear = context.scene.render.film_transparent
+        if clear:
+            col.label(text="The scene's Film is transparent: no paper", icon="IMAGE_ALPHA")
+        sub = col.column()
+        sub.active = not clear
+        sub.prop(s, "paper")
         if s.paper == "custom":
-            col.prop(s, "paper_image")
+            sub.prop(s, "paper_image")
 
 
 class CROQUIS_PT_fine(_Base, bpy.types.Panel):
