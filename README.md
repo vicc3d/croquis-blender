@@ -48,7 +48,7 @@ In Blender, **Edit ▸ Preferences ▸ Get Extensions**, look for *Croquis*
 (its page: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)).
 Or download `croquis-blender-<version>.zip` from
 [Releases](https://github.com/vicc3d/croquis-blender/releases) and use
-**Install from Disk…** in the same place. Needs Blender 5.0 or later.
+**Install from Disk…** in the same place. Needs Blender 4.2 or later.
 
 ### Use
 
@@ -114,7 +114,7 @@ En Blender, **Edit ▸ Preferences ▸ Get Extensions**, busca *Croquis*
 (su página: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)). O
 descarga `croquis-blender-<versión>.zip` desde
 [Releases](https://github.com/vicc3d/croquis-blender/releases) y usa
-**Install from Disk…** en el mismo lugar. Necesita Blender 5.0 o
+**Install from Disk…** en el mismo lugar. Necesita Blender 4.2 o
 posterior.
 
 ### Uso
@@ -168,7 +168,7 @@ No Blender, **Edit ▸ Preferences ▸ Get Extensions**, procure *Croquis*
 (sua página: [extensions.blender.org](https://extensions.blender.org/add-ons/croquis/)). Ou
 baixe `croquis-blender-<versão>.zip` em
 [Releases](https://github.com/vicc3d/croquis-blender/releases) e use
-**Install from Disk…** no mesmo lugar. Precisa do Blender 5.0 ou
+**Install from Disk…** no mesmo lugar. Precisa do Blender 4.2 ou
 posterior.
 
 ### Uso

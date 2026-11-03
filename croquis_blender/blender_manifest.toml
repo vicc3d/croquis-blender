@@ -1,14 +1,14 @@
 schema_version = "1.0.0"
 
 id = "croquis"
-version = "0.5.0"
+version = "0.5.1"
 name = "Croquis"
 tagline = "The camera's view as an architect's freehand sketch"
 maintainer = "Victor Crespo (3dvic.com · github.com/vicc3d)"
 type = "add-on"
 website = "https://github.com/vicc3d/croquis-blender"
 
-blender_version_min = "5.0.0"
+blender_version_min = "4.2.0"
 
 license = ["SPDX:GPL-3.0-or-later"]
 tags = ["Render"]

@@ -148,6 +148,9 @@ tex.image = img
 nt.links.new(tex.outputs["Alpha"], nt.nodes["Principled BSDF"].inputs["Alpha"])
 bpy.ops.mesh.primitive_cube_add(size=1, location=(-3, 0, 0.5))
 solid = bpy.context.object
+# Its own material: Blender 4.2 gives a cube without one the sheet's
+# material when they are joined.
+solid.data.materials.append(material("Plinth", (0.5, 0.5, 0.5, 1)))
 bpy.ops.mesh.primitive_plane_add(size=2, location=(-3, -2, 1), rotation=(math.radians(90), 0, 0))
 sheet = bpy.context.object
 sheet.data.materials.append(fig)
