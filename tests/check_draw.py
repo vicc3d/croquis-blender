@@ -131,6 +131,26 @@ for o in scene.objects:
     o.select_set(o == cube)
 only_cube = tris(selected=True)
 check(0 < only_cube < every, "only selected: just the selected cube")
+# This view in its local view (/): only what that shows.
+area = next((a for a in bpy.data.screens["Layout"].areas if a.type == "VIEW_3D"), None)
+if area and bpy.context.window_manager.windows:
+    region = next(r for r in area.regions if r.type == "WINDOW")
+    with bpy.context.temp_override(window=bpy.context.window_manager.windows[0],
+                                   screen=bpy.data.screens["Layout"], area=area, region=region):
+        bpy.ops.view3d.localview()
+    space = area.spaces.active
+    camera, _why = ops.camera_for(bpy.context, "camera")
+    local = len(sv.BlenderView(bpy.context, bpy.context.evaluated_depsgraph_get(), camera,
+                               local=space))
+    if any(o.local_view_get(space) for o in scene.objects):
+        check(space.local_view and local == only_cube, "local view: only what it shows")
+    else:   # Blender 4.x without a window does not say what its local view shows
+        check(local == every, "local view that says nothing: everything drawn")
+    with bpy.context.temp_override(window=bpy.context.window_manager.windows[0],
+                                   screen=bpy.data.screens["Layout"], area=area, region=region):
+        bpy.ops.view3d.localview()
+else:
+    print("skip local view: no window")
 cube.select_set(False)
 s.only_selected = True
 try:

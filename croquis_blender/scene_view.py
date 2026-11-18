@@ -335,18 +335,22 @@ class BlenderView:
     """The scene as Croquis's drawing reads a viewport: ``camera``,
     ``scene`` (with the sun), ``hlr_geometry()`` and ``croquis_colours``.
     The objects visible in the viewport; with ``render``, only those a
-    render draws too, and with ``selected``, only the selected ones."""
+    render draws too, with ``selected`` only the selected ones, and with
+    ``local`` (a 3D viewport in its local view) only those it shows."""
 
     DEFAULT_FACE_COLOR = DEFAULT_FACE_COLOR
 
     def __init__(self, context, depsgraph, camera: Camera, render: bool = False,
-                 selected: bool = False) -> None:
+                 selected: bool = False, local=None) -> None:
         from .core import palette as pal
         self.camera = camera
         self.scene = _Sun(context.scene)
         tris, hard, soft, soft_n, marker, tone = [], [], [], [], [], []
         cache: dict = {}
         collections = rendered_collections(context.scene) if render else None
+        if local is not None and not any(o.local_view_get(local)
+                                         for o in context.view_layer.objects):
+            local = None    # a local view that says it shows nothing: draw all
 
         def colour_of(rgb):
             if rgb not in cache:
@@ -363,6 +367,8 @@ class BlenderView:
             if render and (not in_render(owner, collections) or obj.original.hide_render):
                 continue
             if selected and not owner.select_get():
+                continue
+            if local is not None and not owner.local_view_get(local):
                 continue
             try:
                 mesh = obj.data if obj.type == "MESH" else obj.to_mesh()

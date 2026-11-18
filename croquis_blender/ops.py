@@ -39,6 +39,16 @@ def last_layers():
     return _last["layers"]
 
 
+def view_area(context):
+    """The 3D viewport to draw from: this one, or the first in the window."""
+    if context.area and context.area.type == "VIEW_3D":
+        return context.area
+    for a in context.screen.areas if context.screen else ():
+        if a.type == "VIEW_3D":
+            return a
+    return None
+
+
 def camera_for(context, source: str):
     """``(camera, None)`` or ``(None, why)``."""
     depsgraph = context.evaluated_depsgraph_get()
@@ -48,12 +58,7 @@ def camera_for(context, source: str):
             return None, "The scene has no camera: add one, or draw from this view"
         return sv.camera_from_object(scene.camera.evaluated_get(depsgraph),
                                      depsgraph, scene), None
-    area = context.area if context.area and context.area.type == "VIEW_3D" else None
-    if area is None:
-        for a in context.screen.areas if context.screen else ():
-            if a.type == "VIEW_3D":
-                area = a
-                break
+    area = view_area(context)
     if area is None:
         return None, "No 3D viewport to draw from"
     region = next((r for r in area.regions if r.type == "WINDOW"), None)
@@ -73,9 +78,13 @@ def draw(context, settings=None, width: int | None = None):
         raise ValueError(why)
     t = time.perf_counter()
     # From the camera, as a render: what is turned off for renders stays out.
+    # From this view, in its local view (/): only what that shows.
+    area = view_area(context) if panel.source == "view" else None
+    space = area.spaces.active if area else None
     view_src = sv.BlenderView(context, context.evaluated_depsgraph_get(), camera,
                               render=panel.source == "camera",
-                              selected=panel.only_selected)
+                              selected=panel.only_selected,
+                              local=space if space and space.local_view else None)
     if not len(view_src):
         raise ValueError("Nothing to draw: nothing selected is a visible mesh"
                          if panel.only_selected else
