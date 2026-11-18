@@ -26,6 +26,7 @@ class CROQUIS_PT_main(_Base, bpy.types.Panel):
         row.operator("croquis.style_delete", text="", icon="REMOVE")
         row = col.row(align=True)
         row.prop(s, "source", expand=True)
+        col.prop(s, "only_selected")
         row = col.row(align=True)
         row.prop(s, "size", expand=True)
         if s.size == "0":

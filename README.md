@@ -25,8 +25,9 @@ style and press a button.
 - **The line of a hand:** strokes that overshoot at real corners, bow and
   waver, sometimes drawn twice, with the outlines heavier. From *Ruler* to
   *Loose*.
-- **From your scene:** the scene's camera (at the render's shape) or the 3D
-  view; each material in the nearest of a box of twenty markers, from its
+- **From your scene:** the scene's camera, as a render (its shape, and
+  without what is turned off for renders), or the 3D view, and if you like
+  only the selected objects; each material in the nearest of a box of twenty markers, from its
   Principled BSDF base colour or the average of its image, or in greys, or
   in high contrast; a classic sketcher's light or your Sun lamp, with cast
   shadows on the model and the ground.
@@ -96,8 +97,9 @@ configuración: eliges un estilo y pulsas un botón.
 - **La línea de una mano:** trazos que sobresalen en las esquinas de
   verdad, se curvan y tiemblan, a veces repasados, con las siluetas más
   marcadas. Desde *Regla* hasta *Suelta*.
-- **Desde tu escena:** la cámara de la escena (con la forma del render) o
-  la vista 3D; cada material con el rotulador más cercano de una caja de
+- **Desde tu escena:** la cámara de la escena, como un render (con su
+  forma, y sin lo desactivado para el render), o la vista 3D, y si quieres
+  solo los objetos seleccionados; cada material con el rotulador más cercano de una caja de
   veinte, a partir del color base del Principled BSDF o del promedio de su
   imagen, o en grises, o en alto contraste; una luz clásica de croquis o tu
   lámpara Sun, con sombras sobre el modelo y el suelo.
@@ -156,8 +158,9 @@ configuração: escolha um estilo e clique num botão.
 - **A linha de uma mão:** traços que passam dos cantos de verdade, se
   curvam e tremem, às vezes repassados, com as silhuetas mais marcadas. De
   *Régua* a *Solta*.
-- **A partir da sua cena:** a câmera da cena (com a forma do render) ou a
-  vista 3D; cada material com o marcador mais próximo de uma caixa de
+- **A partir da sua cena:** a câmera da cena, como um render (com sua
+  forma, e sem o que está desativado no render), ou a vista 3D, e se quiser
+  só os objetos selecionados; cada material com o marcador mais próximo de uma caixa de
   vinte, a partir da cor base do Principled BSDF ou da média da sua imagem,
   ou em cinzas, ou em alto contraste; uma luz clássica de croqui ou sua
   lâmpada Sun, com sombras no modelo e no chão.

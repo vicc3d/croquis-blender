@@ -308,18 +308,45 @@ def cutout_slots(obj, mesh) -> set:
     return out
 
 
+def rendered_collections(scene) -> set:
+    """The scene's collections a render draws: those not turned off for
+    renders, nor inside one that is."""
+    out, todo = set(), [scene.collection]
+    while todo:
+        c = todo.pop()
+        out.add(c)
+        todo.extend(ch for ch in c.children if not ch.hide_render)
+    return out
+
+
+def _owner(inst):
+    """The object the scene shows for an instance: itself, or what makes
+    it (a collection instance, particles)."""
+    return (inst.parent if inst.is_instance and inst.parent else inst.object).original
+
+
+def in_render(obj, collections) -> bool:
+    """Whether a render draws ``obj`` (an original object): not turned off
+    for renders, and in a collection the render draws."""
+    return not obj.hide_render and any(c in collections for c in obj.users_collection)
+
+
 class BlenderView:
     """The scene as Croquis's drawing reads a viewport: ``camera``,
-    ``scene`` (with the sun), ``hlr_geometry()`` and ``croquis_colours``."""
+    ``scene`` (with the sun), ``hlr_geometry()`` and ``croquis_colours``.
+    The objects visible in the viewport; with ``render``, only those a
+    render draws too, and with ``selected``, only the selected ones."""
 
     DEFAULT_FACE_COLOR = DEFAULT_FACE_COLOR
 
-    def __init__(self, context, depsgraph, camera: Camera) -> None:
+    def __init__(self, context, depsgraph, camera: Camera, render: bool = False,
+                 selected: bool = False) -> None:
         from .core import palette as pal
         self.camera = camera
         self.scene = _Sun(context.scene)
         tris, hard, soft, soft_n, marker, tone = [], [], [], [], [], []
         cache: dict = {}
+        collections = rendered_collections(context.scene) if render else None
 
         def colour_of(rgb):
             if rgb not in cache:
@@ -329,6 +356,13 @@ class BlenderView:
         for inst in depsgraph.object_instances:
             obj = inst.object
             if obj.type not in {"MESH", "CURVE", "SURFACE", "META", "FONT"}:
+                continue
+            owner = _owner(inst)
+            # An instanced object is drawn where what makes it is; its own
+            # collection is often kept out of the scene on purpose.
+            if render and (not in_render(owner, collections) or obj.original.hide_render):
+                continue
+            if selected and not owner.select_get():
                 continue
             try:
                 mesh = obj.data if obj.type == "MESH" else obj.to_mesh()

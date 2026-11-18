@@ -66,14 +66,20 @@ def draw(context, settings=None, width: int | None = None):
     from .core import drawing
     from .core import paper as pp
     from .core import presets as ps
-    s = props.settings_dict(settings or context.scene.croquis)
-    camera, why = camera_for(context, (settings or context.scene.croquis).source)
+    panel = settings or context.scene.croquis
+    s = props.settings_dict(panel)
+    camera, why = camera_for(context, panel.source)
     if camera is None:
         raise ValueError(why)
     t = time.perf_counter()
-    view_src = sv.BlenderView(context, context.evaluated_depsgraph_get(), camera)
+    # From the camera, as a render: what is turned off for renders stays out.
+    view_src = sv.BlenderView(context, context.evaluated_depsgraph_get(), camera,
+                              render=panel.source == "camera",
+                              selected=panel.only_selected)
     if not len(view_src):
-        raise ValueError("Nothing to draw: the scene has no visible mesh")
+        raise ValueError("Nothing to draw: nothing selected is a visible mesh"
+                         if panel.only_selected else
+                         "Nothing to draw: the scene has no visible mesh")
     pp.IMAGE_READER = _read_image
     if width is None:
         width = s["size"] or s["custom_width"]

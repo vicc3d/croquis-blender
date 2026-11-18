@@ -139,8 +139,10 @@ class CroquisSettings(bpy.types.PropertyGroup):
     size: EnumProperty(name="Size", items=SIZES, default="2400")
     custom_width: _i("Width", "custom_width", "The drawing's width in pixels", "PIXEL")
     source: EnumProperty(name="From", items=[
-        ("camera", "Camera", "The scene's camera, at the render's shape"),
+        ("camera", "Camera", "The scene's camera, as a render: its shape, without what is off for renders"),
         ("view", "This view", "What the 3D viewport shows")], default="camera")
+    only_selected: BoolProperty(name="Only selected",
+                                description="Draw only the selected objects")
     show_fine: BoolProperty(name="Fine settings", default=False)
 
 

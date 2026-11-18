@@ -95,6 +95,51 @@ bare, _secs = ops.draw(bpy.context, width=800)
 check(len(bare.strokes) == 0 and bare.fill is not None, "weight 0: no lines, the colour stays")
 s.weight = weight
 
+# What is drawn: from the camera as a render, and only the selection.
+from croquis_blender import scene_view as sv  # noqa: E402
+cyl = scene.objects["Cylinder"]
+cube = scene.objects["Cube"]
+
+
+def tris(source="camera", selected=False):
+    s.source, s.only_selected = source, selected
+    camera, _why = ops.camera_for(bpy.context, "camera")
+    view = sv.BlenderView(bpy.context, bpy.context.evaluated_depsgraph_get(), camera,
+                          render=source == "camera", selected=selected)
+    return len(view)
+
+
+every = tris()
+cyl.hide_render = True
+check(tris() < every, "from the camera: an object off for renders is left out")
+check(tris("view") == every, "from this view: an object off for renders is still drawn")
+cyl.hide_render = False
+off = bpy.data.collections.new("Off for renders")
+scene.collection.children.link(off)
+inner = bpy.data.collections.new("Inside it")
+off.children.link(inner)
+home = cyl.users_collection[0]
+home.objects.unlink(cyl)
+inner.objects.link(cyl)
+off.hide_render = True
+check(tris() < every, "from the camera: a collection inside one off for renders is left out")
+off.hide_render = False
+check(tris() == every, "from the camera: the collection back on")
+inner.objects.unlink(cyl)
+home.objects.link(cyl)
+for o in scene.objects:
+    o.select_set(o == cube)
+only_cube = tris(selected=True)
+check(0 < only_cube < every, "only selected: just the selected cube")
+cube.select_set(False)
+s.only_selected = True
+try:
+    ops.draw(bpy.context, width=400)
+    check(False, "only selected, nothing selected: a message")
+except ValueError as exc:
+    check("nothing selected" in str(exc), "only selected, nothing selected: a message")
+s.source, s.only_selected = "camera", False
+
 # The scene's Film ▸ Transparent: the drawing on clear film, no paper.
 scene.render.film_transparent = True
 s.preset = "colour_marker"
