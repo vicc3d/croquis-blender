@@ -1,12 +1,15 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Victor Crespo (3dvic.com · github.com/vicc3d)
-"""Drawing the view, and saving the drawing."""
+"""Drawing the view, and saving the drawing; drawing an animation, frame
+by frame."""
 
+import os
+import shutil
 import time
 
 import bpy
 import numpy as np
-from bpy.props import EnumProperty, StringProperty
+from bpy.props import BoolProperty, EnumProperty, StringProperty
 
 from . import i18n, props
 from . import scene_view as sv
@@ -240,7 +243,108 @@ class CROQUIS_OT_save(bpy.types.Operator):
         return {"FINISHED"}
 
 
-classes = (CROQUIS_OT_draw, CROQUIS_OT_save)
+def animation_frames(scene, twos: bool = False) -> list:
+    """The frames to draw, ``(frame, held)``: the scene's range by its step;
+    on twos, one drawing for every two frames, ``held`` the frames that
+    repeat it."""
+    frames = list(range(scene.frame_start, scene.frame_end + 1, max(1, scene.frame_step)))
+    if not twos:
+        return [(f, []) for f in frames]
+    return [(frames[i], frames[i + 1:i + 2]) for i in range(0, len(frames), 2)]
+
+
+def frame_path(folder: str, frame: int) -> str:
+    return os.path.join(folder, f"croquis_{frame:04d}.png")
+
+
+def draw_frame(context, frame: int, folder: str, held=()):
+    """Frame ``frame`` drawn and saved as a PNG in ``folder`` (and copied
+    for the ``held`` frames): its layers and how long it took."""
+    context.scene.frame_set(frame)
+    layers, secs = draw(context)
+    path = frame_path(folder, frame)
+    if not save_drawing(layers, path, "PNG"):
+        raise OSError(path)
+    for f in held:
+        shutil.copyfile(path, frame_path(folder, f))
+    return layers, secs
+
+
+class CROQUIS_OT_draw_animation(bpy.types.Operator):
+    """Draw every frame of the scene's animation, each one a PNG in a folder"""
+    bl_idname = "croquis.draw_animation"
+    bl_label = "Draw the animation…"
+
+    directory: StringProperty(subtype="DIR_PATH")
+    twos: BoolProperty(name="On twos", default=False,
+                       description="One drawing for every two frames, held for "
+                                   "both, as in hand-drawn animation: half the time")
+
+    def invoke(self, context, _event):
+        if not self.directory and bpy.data.filepath:
+            self.directory = bpy.path.abspath("//croquis" + os.sep)
+        context.window_manager.fileselect_add(self)
+        return {"RUNNING_MODAL"}
+
+    def execute(self, context):
+        folder = bpy.path.abspath(self.directory)
+        if not folder:
+            self.report({"WARNING"}, i18n.tr("Choose a folder for the frames"))
+            return {"CANCELLED"}
+        try:
+            os.makedirs(folder, exist_ok=True)
+        except OSError:
+            self.report({"ERROR"}, i18n.tr("Could not save {path}", path=folder))
+            return {"CANCELLED"}
+        self._folder = folder
+        self._todo = animation_frames(context.scene, self.twos)
+        self._done = 0      # drawings
+        self._frames = 0    # frames saved, the held ones too
+        self._was = context.scene.frame_current
+        self._t = time.perf_counter()
+        wm = context.window_manager
+        wm.progress_begin(0, len(self._todo))
+        self._timer = wm.event_timer_add(0.05, window=context.window)
+        wm.modal_handler_add(self)
+        return {"RUNNING_MODAL"}
+
+    def _finish(self, context, message):
+        wm = context.window_manager
+        wm.event_timer_remove(self._timer)
+        wm.progress_end()
+        context.workspace.status_text_set(None)
+        context.scene.frame_set(self._was)
+        self.report(*message)
+        return {"FINISHED"} if message[0] == {"INFO"} else {"CANCELLED"}
+
+    def modal(self, context, event):
+        if event.type == "ESC":
+            return self._finish(context, ({"WARNING"}, i18n.tr(
+                "Stopped: {n} frames drawn in {path}", n=self._frames, path=self._folder)))
+        if event.type != "TIMER":
+            return {"PASS_THROUGH"}
+        if self._done == len(self._todo):
+            return self._finish(context, ({"INFO"}, i18n.tr(
+                "Drew {n} frames in {path}", n=self._frames, path=self._folder)))
+        frame, held = self._todo[self._done]
+        try:
+            layers, _secs = draw_frame(context, frame, self._folder, held)
+        except ValueError as exc:
+            return self._finish(context, ({"WARNING"}, i18n.tr(str(exc))))
+        except OSError:
+            return self._finish(context, ({"ERROR"}, i18n.tr(
+                "Could not save {path}", path=frame_path(self._folder, frame))))
+        self._done += 1
+        self._frames += 1 + len(held)
+        _last["layers"] = layers
+        show(context, to_image(layers))
+        context.window_manager.progress_update(self._done)
+        context.workspace.status_text_set(i18n.tr(
+            "Croquis: frame {n} of {total}, Esc to stop", n=self._done, total=len(self._todo)))
+        return {"RUNNING_MODAL"}
+
+
+classes = (CROQUIS_OT_draw, CROQUIS_OT_save, CROQUIS_OT_draw_animation)
 
 
 def register() -> None:

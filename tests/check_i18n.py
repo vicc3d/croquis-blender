@@ -19,16 +19,18 @@ for it in croquis.styles.enum_items(None, None):
     if not it[0].startswith("own_"): found |= {it[1], it[2]}
 found |= {"The scene's Film is transparent: no paper", "A style of your own", "My style", "Give the style a name", "Saved the style {name}", "Deleted the style {name}",
           "Nothing to draw: the scene has no visible mesh",
-          "Nothing to draw: nothing selected is a visible mesh"}
+          "Nothing to draw: nothing selected is a visible mesh",
+          "Choose a folder for the frames", "Stopped: {n} frames drawn in {path}",
+          "Drew {n} frames in {path}", "Croquis: frame {n} of {total}, Esc to stop"}
 for it in __import__("croquis_blender.props", fromlist=["x"])._papers_cached():
     found |= {it[1], it[2]}
 for cls in bpy.types.Panel.__subclasses__():
     if cls.__name__.startswith("CROQUIS"): found.add(cls.bl_label)
-for op in ("draw", "save", "style_save", "style_delete"):
+for op in ("draw", "save", "style_save", "style_delete", "draw_animation"):
     o = getattr(bpy.ops.croquis, op).get_rna_type()
     found |= {o.name, o.description}
     for p in o.properties:
-        if p.identifier in ("rna_type", "filepath", "filter_glob"): continue
+        if p.identifier in ("rna_type", "filepath", "filter_glob", "directory"): continue
         found |= {p.name, p.description}
         if p.type == "ENUM":
             for it in p.enum_items: found |= {it.name, it.description}
@@ -40,7 +42,7 @@ prefs.use_translate_interface = True
 for lang in ("es", "pt_BR"):
     prefs.language = lang
     miss = sorted(s for s in found if bpy.app.translations.pgettext_iface(s) == s and s not in same_ok)
-    sample = {s: bpy.app.translations.pgettext_iface(s) for s in ("Hand", "Colour marker", "Draw the view", "This view", "Saved {path}")}
+    sample = {s: bpy.app.translations.pgettext_iface(s) for s in ("Hand", "Colour marker", "Draw the view", "This view", "Saved {path}", "On twos")}
     print(lang, "untranslated:", miss)
     print(lang, "sample:", sample)
     print(lang, "report:", croquis.i18n.tr("Croquis: {w}×{h} in {s} s", w=1600, h=1000, s="2.1"))

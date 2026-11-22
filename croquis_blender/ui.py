@@ -36,6 +36,7 @@ class CROQUIS_PT_main(_Base, bpy.types.Panel):
         big.scale_y = 1.6
         big.operator("croquis.draw", icon="GREASEPENCIL")
         col.operator("croquis.save", icon="FILE_TICK")
+        col.operator("croquis.draw_animation", icon="RENDER_ANIMATION")
 
 
 class CROQUIS_PT_line(_Base, bpy.types.Panel):

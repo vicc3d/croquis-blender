@@ -44,6 +44,10 @@ style and press a button.
   alone, for that background.
 - **Output:** S, M, L or a width of your own; PNG, **SVG in layers** (paper,
   colour, and the ink as editable vector paths) or PDF.
+- **Animation:** **Draw the animation…** draws every frame of the scene's
+  range as a PNG in a folder, to make a video in Blender's Video Editor or
+  any other; **On twos**, one drawing for every two frames, as in
+  hand-drawn animation. Each frame takes as long as a drawing.
 - **Large scenes:** fine detail is simplified as a hand would; a scene of
   1.7 million triangles draws in about 40 seconds.
 
@@ -118,6 +122,10 @@ configuración: eliges un estilo y pulsas un botón.
   dibujan solo el color y la sombra, para ese fondo.
 - **Salida:** S, M, L o un ancho a tu medida; PNG, **SVG por capas**
   (papel, color y la tinta en trazos vectoriales editables) o PDF.
+- **Animación:** **Dibujar la animación…** dibuja cada cuadro del rango de
+  la escena como un PNG en una carpeta, para hacer un video en el editor de
+  video de Blender o en cualquier otro; **De a dos**, un dibujo cada dos
+  cuadros, como en la animación a mano. Cada cuadro tarda lo que un dibujo.
 - **Escenas grandes:** el detalle fino se simplifica como lo haría una
   mano; una escena de 1,7 millones de triángulos se dibuja en unos 40
   segundos.
@@ -180,6 +188,10 @@ configuração: escolha um estilo e clique num botão.
   só a cor e a sombra, para esse fundo.
 - **Saída:** S, M, L ou uma largura sob medida; PNG, **SVG em camadas**
   (papel, cor e o nanquim em traços vetoriais editáveis) ou PDF.
+- **Animação:** **Desenhar a animação…** desenha cada quadro do intervalo
+  da cena como um PNG numa pasta, para fazer um vídeo no editor de vídeo do
+  Blender ou em qualquer outro; **De dois em dois**, um desenho a cada dois
+  quadros, como na animação à mão. Cada quadro leva o tempo de um desenho.
 - **Cenas grandes:** o detalhe fino é simplificado como faria uma mão; uma
   cena de 1,7 milhão de triângulos é desenhada em uns 40 segundos.
 

@@ -160,6 +160,32 @@ except ValueError as exc:
     check("nothing selected" in str(exc), "only selected, nothing selected: a message")
 s.source, s.only_selected = "camera", False
 
+# The animation, frame by frame: a PNG each, on twos one for two frames.
+scene.frame_start, scene.frame_end, scene.frame_step = 1, 5, 1
+check([f for f, _h in ops.animation_frames(scene)] == [1, 2, 3, 4, 5],
+      "animation: every frame of the range")
+check(ops.animation_frames(scene, twos=True) == [(1, [2]), (3, [4]), (5, [])],
+      "animation on twos: one drawing for two frames")
+cube.location.z = 1
+cube.keyframe_insert("location", frame=1)
+cube.location.z = 2
+cube.keyframe_insert("location", frame=3)
+frames = out / "frames"
+frames.mkdir(exist_ok=True)
+for p in frames.glob("*.png"):
+    p.unlink()
+for f, held in ops.animation_frames(scene, twos=True)[:2]:
+    ops.draw_frame(bpy.context, f, str(frames), held)
+names = sorted(p.name for p in frames.glob("*.png"))
+check(names == ["croquis_0001.png", "croquis_0002.png", "croquis_0003.png", "croquis_0004.png"],
+      "animation: a PNG for each frame, named by its number")
+check((frames / "croquis_0001.png").read_bytes() == (frames / "croquis_0002.png").read_bytes()
+      and (frames / "croquis_0001.png").read_bytes() != (frames / "croquis_0003.png").read_bytes(),
+      "animation on twos: the drawing held, then the next one")
+cube.animation_data_clear()
+cube.location.z = 1
+scene.frame_set(1)
+
 # The scene's Film ▸ Transparent: the drawing on clear film, no paper.
 scene.render.film_transparent = True
 s.preset = "colour_marker"
