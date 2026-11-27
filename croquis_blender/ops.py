@@ -76,16 +76,20 @@ def draw(context, settings=None, width: int | None = None):
     from .core import presets as ps
     panel = settings or context.scene.croquis
     s = props.settings_dict(panel)
-    camera, why = camera_for(context, panel.source)
-    if camera is None:
-        raise ValueError(why)
+    sheet = panel.source == "sheet"
+    if sheet:   # the four views' cameras come from the model, below
+        camera = sv.Camera(np.eye(4), np.eye(4), False, 1.0)
+    else:
+        camera, why = camera_for(context, panel.source)
+        if camera is None:
+            raise ValueError(why)
     t = time.perf_counter()
     # From the camera, as a render: what is turned off for renders stays out.
     # From this view, in its local view (/): only what that shows.
     area = view_area(context) if panel.source == "view" else None
     space = area.spaces.active if area else None
     view_src = sv.BlenderView(context, context.evaluated_depsgraph_get(), camera,
-                              render=panel.source == "camera",
+                              render=panel.source in ("camera", "sheet"),
                               selected=panel.only_selected,
                               local=space if space and space.local_view else None)
     if not len(view_src):
@@ -95,12 +99,44 @@ def draw(context, settings=None, width: int | None = None):
     pp.IMAGE_READER = _read_image
     if width is None:
         width = s["size"] or s["custom_width"]
-    layers = drawing.render(
-        view_src, ps.line_style(s), width, marker=ps.marker_style(s),
-        composition=ps.composition(s), paper_kind=s["paper"],
-        paper_image=bpy.path.abspath(s["paper_image"]) if s["paper_image"] else "",
-        transparent=context.scene.render.film_transparent, opacity=s["opacity"] / 100.0)
+    look = dict(marker=ps.marker_style(s), composition=ps.composition(s),
+                paper_kind=s["paper"],
+                paper_image=bpy.path.abspath(s["paper_image"]) if s["paper_image"] else "",
+                transparent=context.scene.render.film_transparent,
+                opacity=s["opacity"] / 100.0)
+    if sheet:
+        return draw_sheet(view_src, panel, ps.line_style(s), width, look), \
+            time.perf_counter() - t
+    layers = drawing.render(view_src, ps.line_style(s), width, **look)
     return layers, time.perf_counter() - t
+
+
+#: The names under the sheet's drawings, in its order.
+SHEET_NAMES = ("Top", "Isometric", "Front", "Side")
+
+
+def draw_sheet(view_src, panel, style, width: int, look: dict):
+    """The presentation sheet: the model from above, in 3D, from the front
+    and from the side, each drawn as a drawing of its own, then laid on
+    one sheet."""
+    from .core import drawing
+    from .core import sheet as sh
+    pts = view_src.points()
+    persp = panel.sheet_views == "persp"
+    cameras = sv.sheet_cameras(pts.min(axis=0), pts.max(axis=0), persp)
+    names = None
+    if panel.sheet_names:
+        names = [i18n.label("Perspective" if persp and n == "Isometric" else n)
+                 for n in SHEET_NAMES]
+    _size, cell_w, _heights, _spots, _band = sh.layout(
+        width, [c.aspect for c in cameras], bool(names))
+    cells = []
+    for cam in cameras:
+        view_src.camera = cam
+        cam.aim_at(pts[::7])
+        cells.append(drawing.render(view_src, style, cell_w, **look))
+    return sh.compose(cells, width, look["paper_kind"], look["paper_image"], names,
+                      style, look["transparent"])
 
 
 def blender_encode(rgb, fmt: str, quality: int = 90) -> bytes:

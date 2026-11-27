@@ -120,6 +120,90 @@ def camera_from_view(region, rv3d) -> Camera:
                   region.width / max(1, region.height))
 
 
+def look_at(eye, target, up) -> np.ndarray:
+    """The view matrix of a camera at ``eye`` looking at ``target``."""
+    eye, target, up = (np.asarray(v, dtype=np.float64) for v in (eye, target, up))
+    z = eye - target
+    z /= np.linalg.norm(z)
+    x = np.cross(up, z)
+    x /= np.linalg.norm(x)
+    y = np.cross(z, x)
+    m = np.eye(4)
+    m[0, :3], m[1, :3], m[2, :3] = x, y, z
+    m[:3, 3] = -m[:3, :3] @ eye
+    return m
+
+
+def _ortho(half_w: float, half_h: float, near: float, far: float) -> np.ndarray:
+    return np.array([[1 / half_w, 0, 0, 0], [0, 1 / half_h, 0, 0],
+                     [0, 0, -2 / (far - near), -(far + near) / (far - near)],
+                     [0, 0, 0, 1]], dtype=np.float64)
+
+
+def _perspective(half_w: float, half_h: float, near: float, far: float) -> np.ndarray:
+    """``half_w``, ``half_h``: the tangents of the half angles."""
+    return np.array([[1 / half_w, 0, 0, 0], [0, 1 / half_h, 0, 0],
+                     [0, 0, (far + near) / (near - far), 2 * far * near / (near - far)],
+                     [0, 0, -1, 0]], dtype=np.float64)
+
+
+#: The sheet's views, in its order (top, the 3D view; front, side), as
+#: where the camera stands seen from the model, and its up.
+SHEET_VIEWS = (("top", (0, 0, 1), (0, 1, 0)),
+               ("iso", (1, -1, 1), (0, 0, 1)),
+               ("front", (0, -1, 0), (0, 0, 1)),
+               ("side", (1, 0, 0), (0, 0, 1)))
+#: Room left round the model in each view, as a share of its size.
+SHEET_MARGIN = 0.12
+
+
+def sheet_cameras(lo, hi, perspective: bool = False) -> list:
+    """The four cameras of a presentation sheet for a model between ``lo``
+    and ``hi`` (its box): top, isometric (or a three-quarter perspective),
+    front and right side, all as wide, the top row as deep as the model and
+    the bottom one as high. Seen flat, the top, front and side share one
+    scale and line up, as on a drawing board: the front and side at the
+    same heights, the top above the front at the same widths."""
+    lo, hi = np.asarray(lo, dtype=np.float64), np.asarray(hi, dtype=np.float64)
+    centre = (lo + hi) / 2
+    size = np.maximum(hi - lo, max(float(np.max(hi - lo)), 1e-6) * 1e-3)
+    dx, dy, dz = size
+    pad = 1 + 2 * SHEET_MARGIN
+    cell_w = max(dx, dy) * pad
+    # A row no lower than a third of its width: a flat model still has room.
+    rows = (max(dy * pad, cell_w / 3), max(dz * pad, cell_w / 3))
+    radius = float(np.linalg.norm(size)) / 2
+    corners = np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1])
+                        for z in (lo[2], hi[2])])
+    out = []
+    for i, (name, towards, up) in enumerate(SHEET_VIEWS):
+        aspect = cell_w / rows[i // 2]
+        d = np.asarray(towards, dtype=np.float64)
+        if perspective:     # seen a little from above, as one stands
+            d = {"iso": np.array([1.0, -1.0, 0.7]), "front": np.array([0.0, -1.0, 0.3]),
+                 "side": np.array([1.0, 0.0, 0.3])}.get(name, d)
+        d /= np.linalg.norm(d)
+        dist = radius * 3.0
+        eye = centre + d * dist
+        view = look_at(eye, centre, up)
+        near, far = max(dist - 2 * radius, dist * 0.01), dist + 2 * radius
+        # The model's box as this camera sees it: across, up, and how far.
+        cam = (view[:3, :3] @ (corners - eye).T).T
+        if perspective:
+            across = np.abs(cam[:, :2] / -cam[:, 2:3]).max(axis=0) * pad
+            hw = max(across[0], across[1] * aspect)
+            proj = _perspective(hw, hw / aspect, near, far)
+        else:
+            if name == "iso":
+                across = np.abs(cam[:, :2]).max(axis=0) * pad
+                hw = max(across[0], across[1] * aspect)
+            else:
+                hw = cell_w / 2
+            proj = _ortho(hw, hw / aspect, near, far)
+        out.append(Camera(proj, view, perspective, aspect))
+    return out
+
+
 # ---- Colour --------------------------------------------------------------
 
 def _to_srgb(c: np.ndarray) -> np.ndarray:
@@ -407,6 +491,10 @@ class BlenderView:
 
     def hlr_geometry(self):
         return self._geom
+
+    def points(self) -> np.ndarray:
+        """The model's corners, (N, 3)."""
+        return self._tris.reshape(-1, 3)
 
     def __len__(self) -> int:
         return len(self._tris)

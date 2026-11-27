@@ -44,6 +44,10 @@ style and press a button.
   alone, for that background.
 - **Output:** S, M, L or a width of your own; PNG, **SVG in layers** (paper,
   colour, and the ink as editable vector paths) or PDF.
+- **Presentation sheet:** draw from **Sheet** for four views on one sheet:
+  top, isometric, front and side, the flat ones to one scale and lined up
+  as on a drawing board, or all in **Perspective**; with **View names**,
+  each name lettered by hand under its view.
 - **Animation:** **Draw the animation…** draws every frame of the scene's
   range as a PNG in a folder, to make a video in Blender's Video Editor or
   any other; **On twos**, one drawing for every two frames, as in
@@ -122,6 +126,11 @@ configuración: eliges un estilo y pulsas un botón.
   dibujan solo el color y la sombra, para ese fondo.
 - **Salida:** S, M, L o un ancho a tu medida; PNG, **SVG por capas**
   (papel, color y la tinta en trazos vectoriales editables) o PDF.
+- **Lámina de presentación:** dibuja desde **Lámina** para tener cuatro
+  vistas en una sola hoja: planta, isométrica, frente y lateral, las planas
+  a una misma escala y alineadas como en un tablero de dibujo, o todas en
+  **Perspectiva**; con **Nombres de las vistas**, cada nombre escrito a mano
+  debajo de su vista.
 - **Animación:** **Dibujar la animación…** dibuja cada cuadro del rango de
   la escena como un PNG en una carpeta, para hacer un video en el editor de
   video de Blender o en cualquier otro; **De a dos**, un dibujo cada dos
@@ -188,6 +197,11 @@ configuração: escolha um estilo e clique num botão.
   só a cor e a sombra, para esse fundo.
 - **Saída:** S, M, L ou uma largura sob medida; PNG, **SVG em camadas**
   (papel, cor e o nanquim em traços vetoriais editáveis) ou PDF.
+- **Prancha de apresentação:** desenhe a partir de **Prancha** para ter
+  quatro vistas numa só folha: planta, isométrica, frente e lateral, as
+  planas numa mesma escala e alinhadas como numa prancheta, ou todas em
+  **Perspectiva**; com **Nomes das vistas**, cada nome escrito à mão
+  embaixo da sua vista.
 - **Animação:** **Desenhar a animação…** desenha cada quadro do intervalo
   da cena como um PNG numa pasta, para fazer um vídeo no editor de vídeo do
   Blender ou em qualquer outro; **De dois em dois**, um desenho a cada dois

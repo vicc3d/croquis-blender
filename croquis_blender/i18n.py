@@ -47,8 +47,11 @@ WORDS = {
         "Each area of colour or hatching its own slant": "Cada zona de color o rayado con su propia inclinación",
         "Each material by how light it is": "Cada material según lo claro que es",
         "Each material in the nearest marker": "Cada material con el rotulador más cercano",
+        "Each view in perspective, and a three-quarter view": "Cada vista en perspectiva, y una vista a tres cuartos",
         "Fine settings": "Ajustes finos",
+        "Flat views to one scale, lined up, and an isometric": "Vistas planas a una misma escala, alineadas, y una isométrica",
         "Format": "Formato",
+        "Four views on one sheet: top, isometric, front and side": "Cuatro vistas en una lámina: planta, isométrica, frente y lateral",
         "Free edges": "Bordes libres",
         "From": "Desde",
         "From a ruler (0) to a loose hand (100)": "De la regla (0) a la mano suelta (100)",
@@ -69,6 +72,7 @@ WORDS = {
         "Intensity": "Intensidad",
         "Kraft": "Kraft",
         "L": "L",
+        "Letter each view's name under it": "Escribir a mano el nombre de cada vista debajo de ella",
         "Light": "Luz",
         "Light and shade only, the shade near black": "Solo luz y sombra, la sombra casi negra",
         "Line": "Línea",
@@ -94,6 +98,7 @@ WORDS = {
         "One drawing for every two frames, held for both, as in hand-drawn animation: half the time": "Un dibujo cada dos cuadros, repetido en ambos, como en la animación a mano: la mitad del tiempo",
         "One page at 300 dpi, the ink as vector paths": "Una página a 300 ppp, la tinta en trazos vectoriales",
         "Only selected": "Solo lo seleccionado",
+        "Orthographic": "Ortogonal",
         "Outlines": "Contornos",
         "Outlines heavier than the edges inside": "Siluetas más marcadas que las aristas de adentro",
         "Overshoot": "Sobrepaso",
@@ -101,6 +106,7 @@ WORDS = {
         "PNG": "PNG",
         "Paper": "Papel",
         "Paper, colour and the ink as vector paths": "Papel, color y la tinta en trazos vectoriales",
+        "Perspective": "Perspectiva",
         "S": "S",
         "SVG in layers": "SVG por capas",
         "Save as a style": "Guardar como estilo",
@@ -110,6 +116,7 @@ WORDS = {
         "Saved the style {name}": "Estilo guardado: {name}",
         "Saved {path}": "Guardado: {path}",
         "Shadows": "Sombras",
+        "Sheet": "Lámina",
         "Size": "Tamaño",
         "Some lines drawn twice": "Algunas líneas repasadas",
         "Some lines run on as construction lines": "Algunas líneas siguen como líneas de construcción",
@@ -133,6 +140,8 @@ WORDS = {
         "Turn": "Giro",
         "Turn the hatching": "Girar el rayado",
         "Twice": "Repasar",
+        "View names": "Nombres de las vistas",
+        "Views": "Vistas",
         "Washes of watercolour": "Aguadas de acuarela",
         "Watercolour": "Acuarela",
         "What the 3D viewport shows": "Lo que muestra la vista 3D",
@@ -182,8 +191,11 @@ WORDS = {
         "Each area of colour or hatching its own slant": "Cada área de cor ou hachura com sua própria inclinação",
         "Each material by how light it is": "Cada material conforme o quanto é claro",
         "Each material in the nearest marker": "Cada material com o marcador mais próximo",
+        "Each view in perspective, and a three-quarter view": "Cada vista em perspectiva, e uma vista a três quartos",
         "Fine settings": "Ajustes finos",
+        "Flat views to one scale, lined up, and an isometric": "Vistas planas numa mesma escala, alinhadas, e uma isométrica",
         "Format": "Formato",
+        "Four views on one sheet: top, isometric, front and side": "Quatro vistas numa prancha: planta, isométrica, frente e lateral",
         "Free edges": "Bordas livres",
         "From": "De",
         "From a ruler (0) to a loose hand (100)": "Da régua (0) à mão solta (100)",
@@ -204,6 +216,7 @@ WORDS = {
         "Intensity": "Intensidade",
         "Kraft": "Kraft",
         "L": "L",
+        "Letter each view's name under it": "Escrever à mão o nome de cada vista embaixo dela",
         "Light": "Luz",
         "Light and shade only, the shade near black": "Só luz e sombra, a sombra quase preta",
         "Line": "Linha",
@@ -229,6 +242,7 @@ WORDS = {
         "One drawing for every two frames, held for both, as in hand-drawn animation: half the time": "Um desenho a cada dois quadros, repetido nos dois, como na animação à mão: metade do tempo",
         "One page at 300 dpi, the ink as vector paths": "Uma página a 300 dpi, o nanquim em traços vetoriais",
         "Only selected": "Só o selecionado",
+        "Orthographic": "Ortogonal",
         "Outlines": "Contornos",
         "Outlines heavier than the edges inside": "Silhuetas mais marcadas que as arestas de dentro",
         "Overshoot": "Ultrapasse",
@@ -236,6 +250,7 @@ WORDS = {
         "PNG": "PNG",
         "Paper": "Papel",
         "Paper, colour and the ink as vector paths": "Papel, cor e o nanquim em traços vetoriais",
+        "Perspective": "Perspectiva",
         "S": "S",
         "SVG in layers": "SVG em camadas",
         "Save as a style": "Salvar como estilo",
@@ -245,6 +260,7 @@ WORDS = {
         "Saved the style {name}": "Estilo salvo: {name}",
         "Saved {path}": "Salvo: {path}",
         "Shadows": "Sombras",
+        "Sheet": "Prancha",
         "Size": "Tamanho",
         "Some lines drawn twice": "Algumas linhas repassadas",
         "Some lines run on as construction lines": "Algumas linhas continuam como linhas de construção",
@@ -268,6 +284,8 @@ WORDS = {
         "Turn": "Giro",
         "Turn the hatching": "Girar a hachura",
         "Twice": "Repassar",
+        "View names": "Nomes das vistas",
+        "Views": "Vistas",
         "Washes of watercolour": "Aguadas de aquarela",
         "Watercolour": "Aquarela",
         "What the 3D viewport shows": "O que a vista 3D mostra",
@@ -288,6 +306,23 @@ def _table() -> dict:
     return {blender_code: {(ctx, en): tr for en, tr in WORDS[ours].items()
                            for ctx in CONTEXTS if en and tr}
             for blender_code, ours in LOCALES.items()}
+
+
+#: The names lettered on a sheet (Blender's own catalogue has other words
+#: for these, so they are looked up here, not through it).
+LABELS = {
+    "es": {"Front": "Frente", "Isometric": "Isométrica", "Perspective": "Perspectiva",
+           "Side": "Lateral", "Top": "Planta"},
+    "pt-BR": {"Front": "Frente", "Isometric": "Isométrica", "Perspective": "Perspectiva",
+              "Side": "Lateral", "Top": "Planta"},
+}
+
+
+def label(text: str) -> str:
+    """A name to letter on a sheet, in the interface's language."""
+    ours = (LOCALES.get(bpy.app.translations.locale)
+            if bpy.context.preferences.view.use_translate_interface else None)
+    return LABELS.get(ours, {}).get(text, text)
 
 
 def tr(text: str, **kw) -> str:

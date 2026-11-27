@@ -140,7 +140,15 @@ class CroquisSettings(bpy.types.PropertyGroup):
     custom_width: _i("Width", "custom_width", "The drawing's width in pixels", "PIXEL")
     source: EnumProperty(name="From", items=[
         ("camera", "Camera", "The scene's camera, as a render: its shape, without what is off for renders"),
-        ("view", "This view", "What the 3D viewport shows")], default="camera")
+        ("view", "This view", "What the 3D viewport shows"),
+        ("sheet", "Sheet", "Four views on one sheet: top, isometric, front and side")],
+        default="camera")
+    sheet_views: EnumProperty(name="Views", items=[
+        ("ortho", "Orthographic", "Flat views to one scale, lined up, and an isometric"),
+        ("persp", "Perspective", "Each view in perspective, and a three-quarter view")],
+        default="ortho")
+    sheet_names: BoolProperty(name="View names", default=True,
+                              description="Letter each view's name under it")
     only_selected: BoolProperty(name="Only selected",
                                 description="Draw only the selected objects")
     show_fine: BoolProperty(name="Fine settings", default=False)

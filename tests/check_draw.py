@@ -160,6 +160,40 @@ except ValueError as exc:
     check("nothing selected" in str(exc), "only selected, nothing selected: a message")
 s.source, s.only_selected = "camera", False
 
+# The sheet: four views on one sheet, the flat ones lined up to one scale.
+from croquis_blender.core import sheet as sh  # noqa: E402
+
+
+def screen(cam, p):
+    m = cam.projection_matrix().m @ cam.view_matrix().m
+    q = m @ np.array([*p, 1.0])
+    return q[:2] / q[3]
+
+
+top, iso, front, side = sv.sheet_cameras((-1, -2, 0), (3, 1, 2))
+high = (0.5, -0.5, 2.0)
+check(abs(screen(front, high)[1] - screen(side, high)[1]) < 1e-9
+      and abs(screen(front, high)[0] - screen(top, high)[0]) < 1e-9
+      and abs(front.aspect - side.aspect) < 1e-9 and abs(top.aspect - iso.aspect) < 1e-9,
+      "sheet: front and side at one height, top above the front, one scale")
+check(len(sh.letter_segments("ISOMÉTRICA", (0, 0), 20)) > len(sh.letter_segments("ISOMETRICA", (0, 0), 20)),
+      "sheet: an accent lettered over its letter")
+s.source = "sheet"
+for views in ("ortho", "persp"):
+    s.sheet_views = views
+    s.sheet_names = True
+    named, _secs = ops.draw(bpy.context, width=1200)
+    s.sheet_names = False
+    bare, _secs = ops.draw(bpy.context, width=1200)
+    check(named.size[0] == 1200 and named.size[1] > bare.size[1]
+          and len(named.strokes) > len(bare.strokes) and named.fill is not None,
+          f"sheet ({views}): four drawings on one sheet, the names under them")
+s.sheet_names = True
+ops.save_drawing(named, str(out / "blender-sheet.svg"), "SVG")
+check((out / "blender-sheet.svg").read_text().count("<path ") == len(named.strokes),
+      "sheet: saved as SVG in layers, every stroke a path")
+s.source, s.sheet_views = "camera", "ortho"
+
 # The animation, frame by frame: a PNG each, on twos one for two frames.
 scene.frame_start, scene.frame_end, scene.frame_step = 1, 5, 1
 check([f for f, _h in ops.animation_frames(scene)] == [1, 2, 3, 4, 5],
